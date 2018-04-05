@@ -1,0 +1,56 @@
+body {
+    font-family: Arial, sans-serif;
+    font-size: 25px;
+    margin: 0;
+    padding: 0;
+}
+h3 {
+    margin: 0;
+}
+p {
+    margin: 0;
+}
+table {
+    font-size: inherit;
+    width: 600px;
+    margin: 20px 0;
+}
+td, th {
+    padding: 3px 0;
+}
+th {
+    font-weight: normal;
+    text-align: left;
+    text-transform: uppercase;
+    font-size: 18px;
+    color: #555;
+}
+.right {
+    text-align: right;
+}
+.content {
+    padding: 0 20px;
+}
+.bar {
+    padding: 10px 0;
+    margin: 0 0 20px;
+    width: 100%;
+    font-size: 26px;
+    background: #333;
+    color: #fff;
+    text-align: center;
+}
+footer {
+    font-size: 30px;
+}
+@media print {
+    body {
+        padding-top: 50px;
+    }
+    table {
+        width: 650px;
+    }
+    .bar {
+        display: none;
+    }
+}

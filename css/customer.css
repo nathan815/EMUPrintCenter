@@ -1,0 +1,76 @@
+body {
+    text-align: center;
+    margin-top: 75px!important;
+}
+.welcome {
+    font-size: 20px;
+}
+a {
+    color: #333;
+}
+a:hover {
+    text-decoration: none;
+}
+#receipt {
+    text-align: left;
+    border-radius: 3px;
+    background: #f8f8f8;
+    border: 1px solid #d9d9d9;
+    width: 70%;
+    padding: 0;
+    margin: 30px auto 20px;
+    box-shadow: 0 0 5px #ddd;
+}
+#receipt-header {
+    padding: 10px 15px 0;
+    overflow: hidden;
+    display: none;
+}
+#receipt-header .right {
+    float: right;
+}
+#receipt-header .left {
+    float: left;
+}
+#receipt table {
+    width: 100%;
+    padding: 10px 15px;
+}
+#receipt table th {
+    font-weight: normal;
+    text-transform: uppercase;
+    color: #777;
+    text-align: left;
+    font-size: 10px;
+}
+#receipt table td.product {
+    width: 210px;
+}
+#receipt table .right {
+    text-align: right;
+}
+#receipt footer {
+    padding: 10px 15px;
+    border-top: 1px solid #d9d9d9;
+    font-size: 19px;
+    overflow: hidden;
+}
+#receipt footer a {
+    font-size: 14px;
+    vertical-align: text-top;
+    text-decoration: none;
+}
+#receipt footer .waiting-order {
+    font-size: 16px;
+    font-style: italic;
+}
+.payment-info {
+    color: #888;
+    text-align: center;
+    border-top: 1px dashed #ddd;
+    padding: 10px 0;
+    margin: 50px 0 0;
+}
+.payment-info p {
+    margin: 0 0 5px;
+}

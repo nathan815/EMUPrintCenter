@@ -1,0 +1,11 @@
+{
+  "name": "emu-printcenter-pos",
+  "version": "1.0.0",
+  "description": "Chrome extension for the EMU Print Center",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
