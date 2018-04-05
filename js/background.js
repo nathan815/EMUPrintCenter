@@ -1,5 +1,5 @@
 const BASE_URL = 'https://ebill.emich.edu/C20704_ustores/';
-let state = 'BEGIN';
+let currentState = 'BEGIN';
 let database = firebase.database();
 let currentTotal = 0;
 let currentItems = {};
@@ -12,7 +12,7 @@ function deleteSiteSessionCookie() {
 }
 
 function changeState(s) {
-    state = s;
+    currentState = s;
     console.log('state changed',s);
     sendMessage({
         action: 'stateChanged',
@@ -28,22 +28,22 @@ function handleRequest(request) {
     let returnData = {};
     switch(request.action) {
         case 'getCost':
-            returnData = { cost: total };
+            returnData = { cost: currentTotal };
         break;
         case 'getItems':
             returnData = { items: currentItems, total: currentTotal };
         break;
         case 'currentState':
-            returnData = { state: state };
+            returnData = { state: currentState };
         break;
         case 'cancelOrder':
-            state = 'CANCEL';
+            changeState('CANCEL');
             currentItems = [];
             currentTotal = 0;
             deleteSiteSessionCookie();
         break;
     }
-    returnData['state'] = state;
+    returnData['state'] = currentState;
     return returnData;
 }
 
@@ -76,6 +76,10 @@ currentOrderRef.on('value', function(snapshot) {
     let order = snapshot.val();
     currentItems = order.items;
     currentTotal = calculateTotal(currentItems);
+    if(order.readyToPay)
+        setState('READY_PAY');
+    if(order.completed)
+        setState('COMPLETED');
     sendMessage({ 
         action: 'itemsChanged',
         order: order,
