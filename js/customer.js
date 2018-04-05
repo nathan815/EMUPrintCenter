@@ -38,8 +38,6 @@ var app = new Vue({
         },
         clearOrder: function() {
             this.items = [];
-            this.isReadyToPay = false;
-            this.isOrderFinished = false;
         },
         orderCancelled: function() {
             this.clearOrder();

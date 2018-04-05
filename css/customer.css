@@ -72,5 +72,8 @@ a:hover {
     margin: 50px 0 0;
 }
 .payment-info p {
-    margin: 0 0 5px;
+    margin: 0 0 10px;
+}
+.payment-info img {
+    width: 170px;
 }
