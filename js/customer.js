@@ -6,7 +6,8 @@ var app = new Vue({
     data: {
         currentState: 'BEGIN',
         items: [],
-        total: 0
+        total: 0,
+        isReadyToPay: false
     },
     mounted: function() {
         this.getState();
@@ -17,11 +18,9 @@ var app = new Vue({
         isOrderFinished: function() {
             return this.currentState === 'COMPLETED';
         },
-        isReadyToPay: function() {
-            return this.currentState === 'READY_PAY';
-        },
         parsedItems: function() {
-            if(this.items && this.items.length <= 0)
+            if(!this.items) return;
+            if(this.items.length <= 0)
                 this.items.push({ name: '...', cost: 0, qty: 0 });
             return this.items.map((item) => {
                 return {
@@ -49,8 +48,10 @@ var app = new Vue({
             //this.isOrderFinished = true;
         },
         openPayWindow: function() {
-            let payWindow = window.open(EMU_PAY_URL);
-            this.pollPayWindowClosed(payWindow);
+            this.setState('CART_CONTINUE', function() {
+                let payWindow = window.open(EMU_PAY_URL);
+                this.pollPayWindowClosed(payWindow);
+            });
         },
         pollPayWindowClosed: function(winObj) {
             var loop = setInterval(() => {   
@@ -113,6 +114,7 @@ var app = new Vue({
                     case 'currentOrderChanged':
                         this.items = msg.order.items;
                         this.total = msg.total;
+                        this.isReadyToPay = msg.order.isReadyToPay;
                     break;
                     case 'clearOrder':
                         this.clearOrder();
@@ -121,9 +123,10 @@ var app = new Vue({
             });
         },
         getItems: function() {
-            chrome.runtime.sendMessage({ action: 'getItems' }, (response) => {
-                this.items = response.items;
+            chrome.runtime.sendMessage({ action: 'getCurrentOrder' }, (response) => {
+                this.items = response.order.items;
                 this.total = response.total;
+                this.isReadyToPay = response.order.isReadyToPay;
             });
         },
         getState: function(cb) {

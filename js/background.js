@@ -3,6 +3,7 @@ let currentState = 'BEGIN';
 let database = firebase.database();
 let currentTotal = 0;
 let currentItems = {};
+let currentOrder = {};
 
 function deleteSiteSessionCookie() {
     chrome.cookies.remove({
@@ -30,8 +31,8 @@ function handleRequest(request) {
         case 'getCost':
             returnData = { cost: currentTotal };
         break;
-        case 'getItems':
-            returnData = { items: currentItems, total: currentTotal };
+        case 'getCurrentOrder':
+            returnData = { order: currentOrder, total: currentTotal };
         break;
         case 'currentState':
             returnData = { state: currentState };
@@ -74,14 +75,11 @@ let currentOrderRef = firebase.database().ref('currentOrder');
 currentOrderRef.on('value', function(snapshot) {
     console.log(snapshot.val());
     let order = snapshot.val();
+    currentOrder = order;
     currentItems = order.items;
     currentTotal = calculateTotal(currentItems);
-    if(order.readyToPay)
-        setState('READY_PAY');
-    if(order.completed)
-        setState('COMPLETED');
     sendMessage({ 
-        action: 'itemsChanged',
+        action: 'currentOrderChanged',
         order: order,
         total: currentTotal
     });
