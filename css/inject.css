@@ -35,6 +35,8 @@ body {
     right: 0;
 }
 #pos-checkout-toolbar button {
+    background: #fff;
+    outline: 0;
     padding: 7px 15px;
     border: 1px solid #f5f5f5;
     font-size: 14px;

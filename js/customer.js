@@ -48,7 +48,7 @@ var app = new Vue({
             //this.isOrderFinished = true;
         },
         openPayWindow: function() {
-            this.setState('CART_CONTINUE', function() {
+            this.setState('BEGIN', function() {
                 let payWindow = window.open(EMU_PAY_URL);
                 this.pollPayWindowClosed(payWindow);
             });
