@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EMU Print Center Attendant</title>
+    <link rel="stylesheet" href="css/inject.css" />
+    <link rel="stylesheet" href="css/interface.css" />
+    <link rel="stylesheet" href="css/attendant.css" />
+</head>
+<body>
+    <div id="app">
+
+        <div id="pos-checkout-toolbar" class="center">
+            <div class="buttons left">
+            </div>
+            EMU Print Center: Attendant
+            <div class="buttons right">
+                <button v-on:click="signOut" v-if="signedIn">Sign Out</button>
+                <button v-on:click="signIn" v-else>Sign In</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <p v-if="!signedIn" class="sign-in-text">Please <a href="#" v-on:click="signIn">sign in</a> to access this interface.</p>
+            <div v-else>
+                hi
+            </div>
+        </div>
+
+    </div>
+
+    <script src="js/vue.js"></script>
+    <script src="js/attendant.js"></script>
+</body>
+</html>
