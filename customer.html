@@ -46,7 +46,7 @@
             <p>Click below if you want a copy of your receipt.</p>
             <button v-on:click="printReceipt" class="btn btn-lg"><i class="fas fa-print"></i> Print Receipt</button>
         </div>
-        <button v-else v-on:click="openPayWindow" :disabled="!isReadyToPay" class="btn btn-lg">Pay with Card <i class="fas fa-arrow-right"></i></button>
+        <button v-else v-on:click="openPayWindow" :disabled="!currentOrder.isReadyToPay" class="btn btn-lg">Pay with Card <i class="fas fa-arrow-right"></i></button>
 
         <div class="payment-info">
             <p><b>Important:</b> We can only accept cards and interdepartmental transfer forms.</p>

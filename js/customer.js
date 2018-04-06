@@ -6,9 +6,7 @@ let app = new Vue({
     data: {
         currentState: 'BEGIN',
         currentOrder: null,
-        items: null,
-        total: 0,
-        isReadyToPay: false
+        total: 0
     },
     mounted: function() {
         this.getState();
@@ -20,10 +18,10 @@ let app = new Vue({
             return this.currentState === 'COMPLETED';
         },
         parsedItems: function() {
-            if(!this.items) return;
-            if(this.items.length <= 0)
-                this.items.push({ name: '...', cost: 0, qty: 0 });
-            return this.items.map((item) => { 
+            if(!this.currentOrder || !this.currentOrder.items) return;
+            if(this.currentOrder.items.length <= 0)
+                this.currentOrder.items.push({ name: '...', cost: 0, qty: 0 });
+            return this.currentOrder.items.map((item) => { 
                 return {
                     name: item.name,
                     cost: item.cost ? '$' + this.moneyFormat(item.cost) : '...',
@@ -38,7 +36,7 @@ let app = new Vue({
             return num % 1 === 0 ? num : num.toFixed(2);
         },
         clearOrder: function() {
-            this.items = [];
+            //this.items = [];
         },
         orderCancelled: function() {
             this.clearOrder();
@@ -82,8 +80,7 @@ let app = new Vue({
                 case 'BEGIN':
                 break;
                 case 'COMPLETED':
-                    this.orderCompleted();
-                    //setTimeout(this.clearOrder, 4000);
+                    //this.orderCompleted();
                 break;
                 case 'CANCEL':
                     this.orderCancelled();
@@ -91,31 +88,30 @@ let app = new Vue({
                 break;
             };
         },
+        handleMessage: function(msg) {
+            switch(msg.action) {
+                case 'stateChanged':
+                    this.handleStateChange(msg.state);
+                break;
+                case 'currentOrderChanged':
+                    this.total = msg.total;
+                    this.currentOrder = msg.order;
+                break;
+                case 'clearOrder':
+                    this.clearOrder();
+                break;
+            }
+        },
         listenForMessages: function() {
             chrome.runtime.onMessage.addListener((msg, sender, response) => {
                 console.log('message recieved: ', msg);
-                switch(msg.action) {
-                    case 'stateChanged':
-                        this.handleStateChange(msg.state);
-                    break;
-                    case 'currentOrderChanged':
-                        this.items = msg.order.items;
-                        this.total = msg.total;
-                        this.currentOrder = msg.order;
-                        this.isReadyToPay = msg.order.isReadyToPay;
-                    break;
-                    case 'clearOrder':
-                        this.clearOrder();
-                    break;
-                }
+                this.handleMessage(msg);
             });
         },
         getCurrentOrder: function() {
             chrome.runtime.sendMessage({ action: 'getCurrentOrder' }, (response) => {
-                this.items = response.order.items;
                 this.total = response.total;
                 this.currentOrder = response.order;
-                this.isReadyToPay = response.order.isReadyToPay;
             });
         },
         getState: function(cb) {
