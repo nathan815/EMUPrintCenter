@@ -10,8 +10,33 @@ body {
 .chk-submitbtn-paynow.btn-primary:after {
     content: " →";
 }
+.ui-widget-overlay {
+    position: fixed!important;
+}
+.headerbanner {
+    text-align: center;
+    padding: 15px 0;
+}
+#shopping_cart_form,
+#footer,
+#cart hr {
+    display: none!important;
+}
+#loading-screen {
+    display: none;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    background: rgba(0,0,0,0.8);
+    color: #fff;
+    padding: 250px 0 0;
+    font-size: 25px;
+}
 
 #pos-checkout-toolbar {
+    z-index: 101;
     background: #3b8b5f;
     color: white;
     font-size: 22px;

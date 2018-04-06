@@ -1,5 +1,5 @@
 const BASE_URL = 'https://ebill.emich.edu/C20704_ustores/';
-let currentState = 'BEGIN';
+let currentState = 'DEFAULT';
 let database = firebase.database();
 let currentTotal = 0;
 let currentItems = {};
@@ -37,11 +37,17 @@ function handleRequest(request) {
         case 'currentState':
             returnData = { state: currentState };
         break;
+        case 'cancelPayment':
+            changeState('DEFAULT');
+            deleteSiteSessionCookie();
+        break;
         case 'cancelOrder':
             changeState('CANCEL');
-            currentItems = [];
-            currentTotal = 0;
-            deleteSiteSessionCookie();
+            firebase.database().ref('currentOrder').set({
+                completed: false,
+                isReadyToPay: false,
+                items: {}
+            });
         break;
     }
     returnData['state'] = currentState;

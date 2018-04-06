@@ -1,5 +1,4 @@
 const EMU_PAY_URL = 'https://ebill.emich.edu/C20704_ustores/web/product_detail.jsp?PRODUCTID=49&SINGLESTORE=true';
-const EMU_PRINT_URL = 'https://ebill.emich.edu/C20704_ustores/web/classic/print_order_receipt.jsp?INCLUDE_SCHEDULE=true';
 
 var app = new Vue({
     el: '#app',
@@ -11,7 +10,7 @@ var app = new Vue({
     },
     mounted: function() {
         this.getState();
-        this.getItems();
+        this.getCurrentOrder();
         this.listenForMessages();
     },
     computed: {
@@ -46,27 +45,24 @@ var app = new Vue({
             //this.isOrderFinished = true;
         },
         openPayWindow: function() {
+            this.sendMessage({ action: 'clearPaySiteSessionCookie' });
             this.setState('BEGIN', function() {
                 let payWindow = window.open(EMU_PAY_URL);
-                this.pollPayWindowClosed(payWindow);
+                //this.pollPayWindowClosed(payWindow);
             });
         },
         pollPayWindowClosed: function(winObj) {
             var loop = setInterval(() => {   
+                console.log('checking if window closed')
                 if(winObj.closed) {  
+                    console.log('window is closed')
                     clearInterval(loop);  
                     this.payWindowClosed();
                 }
-            }, 650);
+            }, 1500);
         },
         payWindowClosed: function() {
-            this.getState((state) => {
-                if(state === 'CANCEL')
-                    this.orderCancelled();
-                else if(state === 'COMPLETED')
-                    this.orderCompleted();
-                this.setState('BEGIN');
-            });
+            this.setState('DEFAULT');
         },
         printReceipt: function() {
             let w = window.open();
@@ -120,7 +116,7 @@ var app = new Vue({
                 }
             });
         },
-        getItems: function() {
+        getCurrentOrder: function() {
             chrome.runtime.sendMessage({ action: 'getCurrentOrder' }, (response) => {
                 this.items = response.order.items;
                 this.total = response.total;
@@ -139,6 +135,11 @@ var app = new Vue({
             chrome.runtime.sendMessage({ setState: state }, function(response) {
                 this.currentState = state;
                 console.log('Set State = ' + state);
+                if(cb) cb();
+            });
+        },
+        sendMessage: function(data, cb) {
+            chrome.runtime.sendMessage(data, function(response) {
                 if(cb) cb();
             });
         }
