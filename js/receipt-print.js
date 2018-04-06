@@ -1,2 +1,4 @@
-window.print();
-window.close();
+setTimeout(function() {
+	window.print();
+	window.close();
+}, 700);

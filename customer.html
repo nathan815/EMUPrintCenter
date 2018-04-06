@@ -14,7 +14,14 @@
     
     <div class="container" id="app">
 
-        <p class="welcome">Welcome to the Print Center!</p>
+        <div class="leading-text">
+            <p v-if="isOrderComplete">
+                <i class="fas fa-check-square"></i>
+                Your order is complete.<br>
+                Thank you!
+            </p>
+            <p v-else>Welcome to the Print Center!</p>
+        </div>
         <div id="receipt">
             <table>
                 <tr>
@@ -35,8 +42,11 @@
                 <span v-else class="waiting-order">Waiting for order...</span>
             </footer>
         </div>
-        <button v-on:click="openPayWindow" class="btn btn-lg" :disabled="!isReadyToPay" v-if="!isOrderFinished">Pay with Card →</button>
-        <button v-on:click="printReceipt" class="btn btn-lg" v-if="isOrderFinished">Print My Receipt</button>
+        <div v-if="isOrderComplete">
+            <p>Click below if you want a copy of your receipt.</p>
+            <button v-on:click="printReceipt" class="btn btn-lg"><i class="fas fa-print"></i> Print Receipt</button>
+        </div>
+        <button v-else v-on:click="openPayWindow" :disabled="!isReadyToPay" class="btn btn-lg">Pay with Card <i class="fas fa-arrow-right"></i></button>
 
         <div class="payment-info">
             <p><b>Important:</b> We can only accept cards and interdepartmental transfer forms.</p>

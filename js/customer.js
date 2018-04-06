@@ -1,10 +1,12 @@
 const EMU_PAY_URL = 'https://ebill.emich.edu/C20704_ustores/web/product_detail.jsp?PRODUCTID=49&SINGLESTORE=true';
+const PRINT_URL = '/receipt-print.html';
 
 let app = new Vue({
     el: '#app',
     data: {
         currentState: 'BEGIN',
-        items: [],
+        currentOrder: null,
+        items: null,
         total: 0,
         isReadyToPay: false
     },
@@ -14,7 +16,7 @@ let app = new Vue({
         this.listenForMessages();
     },
     computed: {
-        isOrderFinished: function() {
+        isOrderComplete: function() {
             return this.currentState === 'COMPLETED';
         },
         parsedItems: function() {
@@ -42,7 +44,7 @@ let app = new Vue({
             this.clearOrder();
         },
         orderCompleted: function() {
-            //this.isOrderFinished = true;
+            //this.isOrderComplete = true;
         },
         openPayWindow: function() {
             this.sendMessage({ action: 'clearPaySiteSessionCookie' });
@@ -65,22 +67,13 @@ let app = new Vue({
             this.setState('DEFAULT');
         },
         printReceipt: function() {
-            let w = window.open();
-            w.document.write('<html><head><title>EMU Print Center Receipt</title>');
-            w.document.write('<link href="css/receipt-print.css" rel="stylesheet" />');
-            w.document.write('</head><body>');
-            w.document.write('<div class="bar">Printing your receipt, please wait...</div>');
-            w.document.write('<div class="content"><h3>EMU Print Center Receipt</h3>');
-            //w.document.write('<p>Date: ' + new Date().toLocaleDateString("en-US") + '</p>');
-            w.document.write('<p>Date: ' + new Date().toLocaleDateString("en-US") + '</p>');
-            w.document.write(document.getElementById('receipt').innerHTML);
-            w.document.write('</div></body></html>');
-
-            let script = document.createElement('script');
-            script.setAttribute('type', 'text/javascript');
-            script.setAttribute('src', 'js/receipt-print.js');
-            w.document.body.appendChild(script);
-            w.document.close();
+            let w = window.open(PRINT_URL);
+            let date = new Date(this.currentOrder.dateCompleted);
+            w.onload = function() {
+                w.document.getElementById('receipt-data').innerHTML = document.getElementById('receipt').innerHTML;
+                w.document.getElementById('date').innerHTML = date.toLocaleDateString('en-US') + ' ' + date.toLocaleTimeString('en-US');
+                w.document.getElementById('paid-with').innerHTML = 'Paid with Card';
+            };
         },
         handleStateChange: function(state) {
             console.log('state changed: ',state);
@@ -108,6 +101,7 @@ let app = new Vue({
                     case 'currentOrderChanged':
                         this.items = msg.order.items;
                         this.total = msg.total;
+                        this.currentOrder = msg.order;
                         this.isReadyToPay = msg.order.isReadyToPay;
                     break;
                     case 'clearOrder':
@@ -120,6 +114,7 @@ let app = new Vue({
             chrome.runtime.sendMessage({ action: 'getCurrentOrder' }, (response) => {
                 this.items = response.order.items;
                 this.total = response.total;
+                this.currentOrder = response.order;
                 this.isReadyToPay = response.order.isReadyToPay;
             });
         },

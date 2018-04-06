@@ -1,10 +1,10 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: Courier, sans-serif;
     font-size: 25px;
     margin: 0;
     padding: 0;
 }
-h3 {
+h5 {
     margin: 0;
 }
 p {
@@ -25,6 +25,14 @@ th {
     font-size: 18px;
     color: #555;
 }
+header {
+    text-align: center;
+    margin: 0 0 40px;
+}
+header img {
+    display: inline-block;
+    margin-bottom: 40px;
+}
 .right {
     text-align: right;
 }
@@ -39,9 +47,6 @@ th {
     background: #333;
     color: #fff;
     text-align: center;
-}
-footer {
-    font-size: 30px;
 }
 @media print {
     body {

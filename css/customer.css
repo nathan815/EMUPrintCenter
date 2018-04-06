@@ -4,8 +4,14 @@ body {
 .container {
     margin-top: 20px;
 }
-.welcome {
+.leading-text {
     font-size: 27px;
+}
+.leading-text i.fas {
+    font-size: 50px;
+    color: #3b8b5f;
+    display: block;
+    margin-bottom: 10px;
 }
 a {
     color: #333;
