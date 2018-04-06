@@ -19,11 +19,11 @@ chrome.runtime.sendMessage({ action: 'currentState' }, function(response) {
     document.getElementById('state').innerText = response.state;
     document.getElementById('new-state').value = response.state;
 });
-chrome.runtime.onMessage.addListener((request, sender, response) => {
-    switch(request.action) {
+chrome.runtime.onMessage.addListener((msg, sender, response) => {
+    switch(msg.action) {
         case 'stateChanged':
-            document.getElementById('state').innerText = request.state;
-            document.getElementById('new-state').value = request.state;
+            document.getElementById('state').innerText = msg.state;
+            document.getElementById('new-state').value = msg.state;
         break;
     }
 });

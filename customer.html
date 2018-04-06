@@ -18,12 +18,12 @@
         <div id="receipt">
             <table>
                 <tr>
-                    <th>Product</th>
+                    <th class="product">Product</th>
                     <th class="right">Cost</th>
                     <th class="right">Qty</th>
                     <th class="right">Total</th>
                 </tr>
-                <tr v-for="(item,key) in parsedItems" :key="key">
+                <tr v-cloak v-for="(item,key) in parsedItems" :key="key">
                     <td class="product">{{ item.name }}</td>
                     <td class="right">{{ item.cost }}</td>
                     <td class="right">{{ item.qty }}</td>
@@ -31,7 +31,7 @@
                 </tr>
             </table>
             <footer>
-                <span v-if="total">Total: <b>${{ total.toFixed(2) }}</b></span>
+                <span v-if="total">Total: <b v-cloak>${{ total.toFixed(2) }}</b></span>
                 <span v-else class="waiting-order">Waiting for order...</span>
             </footer>
         </div>
@@ -40,7 +40,7 @@
 
         <div class="payment-info">
             <p><b>Important:</b> We can only accept cards and interdepartmental transfer forms.</p>
-            <p><img src="img/cards.png" /></p>
+            <p class="cards"><img src="img/cards.png" /></p>
         </div>
     </div>
     

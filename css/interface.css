@@ -1,9 +1,16 @@
 body {
-    margin-top: 70px;
-    font: 16px "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
+    margin-top: 90px!important;
+    font-size: 20px!important;
+}
+a {
+    color: #3b8b5f;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
 }
 .container {
-    width: 600px;
+    width: 700px;
     margin: 0 auto;
 }
 .pull-right {
@@ -12,9 +19,22 @@ body {
 .pull-left {
     float: left;
 }
+.bold {
+    font-weight: bold;
+}
+.center {
+    text-align: center;
+}
+.text-large {
+    font-size: 120%;
+}
 h1, h2, h3, h4, h5, h6 {
     margin: 0;
 }
+[v-cloak] {
+    display: none;
+}
+
 .btn {
     background: #3b8b5f;
     border: none;
@@ -22,7 +42,7 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 14px;
     color: #fff;
     padding: 10px;
-    border-radius: 3px;
+    border-radius: 5px;
     cursor: pointer;
 }
 .btn:disabled {
@@ -37,6 +57,19 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: inset 0 0 5px #444;
 }
 .btn-lg {
-    font-size: 18px;
-    padding: 13px 17px;
+    font-size: 24px;
+    padding: 18px 24px;
+}
+#pos-checkout-toolbar {
+    font-size: 31px;
+    padding: 15px 0;
+}
+#pos-checkout-toolbar .buttons {
+    padding: 14px;
+    line-height: 1;
+}
+#pos-checkout-toolbar button {
+    padding: 10px 17px;
+    border: 0;
+    font-size: 16px;
 }

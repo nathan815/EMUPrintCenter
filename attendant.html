@@ -13,14 +13,17 @@
             <div class="buttons left">
             </div>
             EMU Print Center: Attendant
-            <div class="buttons right">
-                <button v-on:click="signOut" v-if="signedIn">Sign Out</button>
+            <div class="buttons right" v-cloak>
+                <button v-on:click="signOut" v-if="isSignedIn">Sign Out</button>
                 <button v-on:click="signIn" v-else>Sign In</button>
             </div>
         </div>
 
-        <div class="container">
-            <p v-if="!signedIn" class="sign-in-text">Please <a href="#" v-on:click="signIn">sign in</a> to access this interface.</p>
+        <div class="container" v-cloak>
+            <div v-if="!isSignedIn" class="sign-in-text">
+                <p class="text-large">Sign in to access the print center attendant interface.</p>
+                <button class="btn btn-lg" v-on:click="signIn">Sign in with Google</button>
+            </div>
             <div v-else>
                 hi
             </div>

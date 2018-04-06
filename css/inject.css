@@ -56,7 +56,8 @@ body {
 }
 #pos-checkout-toolbar .left {
     left :0;
-}#pos-checkout-toolbar .right {
+}
+#pos-checkout-toolbar .right {
     right: 0;
 }
 #pos-checkout-toolbar button {

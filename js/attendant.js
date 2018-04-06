@@ -1,7 +1,7 @@
 let app = new Vue({
     el: '#app',
     data: {
-        signedIn: false
+        isSignedIn: false
     },
     methods: {
         signIn: function() {

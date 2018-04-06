@@ -21,7 +21,7 @@ let app = new Vue({
             if(!this.items) return;
             if(this.items.length <= 0)
                 this.items.push({ name: '...', cost: 0, qty: 0 });
-            return this.items.map((item) => {
+            return this.items.map((item) => { 
                 return {
                     name: item.name,
                     cost: item.cost ? '$' + this.moneyFormat(item.cost) : '...',

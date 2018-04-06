@@ -1,7 +1,7 @@
 body {
-    margin: 0;
+    margin: 0!important;
     padding: 10px;
-    min-width: 200px;
+    min-width: 300px;
     text-align: center;
     color: #3b8b5f;
     font-size: 14px;
@@ -10,9 +10,10 @@ h2 {
     margin: 0 0 10px;
 }
 .btn {
-    padding: 15px 0;
+    padding: 20px 0;
     width: 100%;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
+    font-size: 17px;
 }
 .btn:hover {
     opacity: 0.8;
