@@ -6,3 +6,58 @@
 .sign-in-text p {
 	margin-bottom: 40px;
 }
+.container {
+	width: 800px;
+}
+.section > header h3 {
+	margin: 0;
+}
+.section > header {
+	margin: 10px 0;
+	padding: 0 0 10px;
+	border-bottom: 1px dashed #ccc;
+	overflow: hidden;
+}
+.section {
+	margin-bottom: 50px;
+}
+.order {
+	font-size: 19px;
+}
+.order .header-details {
+	font-size: 75%;
+	font-weight: normal;
+	text-align: right;
+}
+.order header {
+	overflow: hidden;
+}
+.order header .buttons {
+	margin-left: 8px;
+}
+.order header .paid.not {
+	color: #cc0f0f;
+	font-weight: bold;
+}
+.order p {
+	margin: 0;
+	font-size: 90%;
+}
+.order .details {
+	padding: 0 0 0 5px;
+}
+.order .items {	
+	margin: 5px 0 0;
+}
+table.item-table {
+	width: 500px;
+}
+table.item-table th {
+	text-align: left;
+	font-size: 14px;
+	font-weight: normal;
+	color: #555;
+}
+table.item-table .product {
+	width: 55%;
+}

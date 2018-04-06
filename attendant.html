@@ -20,16 +20,81 @@
         </div>
 
         <div class="container" v-cloak>
-            <div v-if="!isSignedIn" class="sign-in-text">
+            <div v-if="isSignedIn">
+                <div class="section current-order">
+                    <header>
+                        <h2 class="pull-left">Current Order</h2>
+                        <div class="pull-right">
+                            <button class="btn btn-light" v-if="currentOrder !== null && currentOrder.isComplete"><i class="fas fa-times"></i> Clear Order</button>
+                            <button class="btn btn-red" v-else-if="currentOrder !== null"><i class="fas fa-times"></i> Cancel Order</button>
+                        </div>
+                    </header>
+
+                    <item-table></item-table>
+                    <a href="#" v-if="currentOrder !== null && !currentOrder.isComplete">+ Add Item</a>
+
+                </div>
+
+                <div class="section orders">
+
+                    <header>
+                        <h2 class="pull-left">
+                            Orders
+                            <select>
+                                <option>All</option>
+                                <option>Not Paid</option>
+                                <option>Paid</option>
+                            </select>
+                        </h2>
+                        <button class="btn pull-right"><i class="fas fa-plus"></i> Add Email Order</button>
+                    </header>
+                    
+                    <div class="order" v-cloak>
+                        <header>
+                            <h3 class="pull-left">Order #1</h3>
+                            <span class="header-details pull-right">
+                                <span class="paid not">Hasn't Paid</span> 
+                                <br>
+                                <a href="#"><i class="fas fa-dollar-sign"></i> Initiate Payment</a>
+                            </span>
+                        </header>
+                        <div class="details">
+                            <p class="contact"><i>Contact:</i> John Doe &bull; john@doe.com</p>
+                            <p class="notes"><i>Notes:</i> they want this, and that, and that</p>
+                            <div class="items">
+                                <h4>Items in this order</h4>
+                               <item-table></item-table>
+                            </div>
+                        </div><!-- end .details-->
+                    </div><!-- end .order-->
+
+                </div><!-- end .section.orders-->
+
+            </div>
+            <div v-else class="sign-in-text">
                 <p class="text-large">Sign in to access the print center attendant interface.</p>
                 <button class="btn btn-lg" v-on:click="signIn">Sign in with Google</button>
             </div>
-            <div v-else>
-                hi
-            </div>
         </div>
 
-    </div>
+    </div><!-- end #app-->
+
+    <script type="text/x-template" id="item-table">
+        <table class="item-table">
+            <tr>
+                <th class="product">Product</th>
+                <th class="right">Cost</th>
+                <th class="right">Qty</th>
+                <th class="right">Total</th>
+            </tr>
+            <tr v-cloak v-for="(item,key) in parsedItems" :key="key">
+                <td class="product">{{ item.name }}</td>
+                <td class="right">{{ item.cost }}</td>
+                <td class="right">{{ item.qty }}</td>
+                <td class="right">{{ item.total }}</td>
+            </tr>
+        </table>
+    </script>
 
     <script src="js/vue.js"></script>
     <script src="js/attendant.js"></script>

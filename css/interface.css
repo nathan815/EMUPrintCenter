@@ -39,7 +39,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .btn {
     background: #3b8b5f;
-    border: none;
+    border: 1px solid #3b8b5f;
     outline: none;
     font-size: 14px;
     color: #fff;
@@ -57,6 +57,18 @@ h1, h2, h3, h4, h5, h6 {
 .btn:not(:disabled):active {
     opacity: 1;
     box-shadow: inset 0 0 5px #444;
+}
+.btn-light {
+    background: #eee;
+    border-color: #ccc;
+    color: #333;
+}
+.btn.btn-light:active {
+    box-shadow: none;
+    background-color: #ddd;
+}
+.btn-red {
+    background: #cc5d3c;
 }
 .btn-lg {
     font-size: 24px;
