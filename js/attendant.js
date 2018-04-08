@@ -22,11 +22,11 @@ Vue.mixin({
     },
     calculateTotal: function(items) {
         let total = 0;
-        if(!items || items.length === 0)
+        if(!items)
             return 0;
-        items.forEach(function(item) {
-            total += item.cost*item.qty;
-        });
+        for(let key in items) {
+            total += items[key].cost * items[key].qty;
+        }
         return Math.round(total * 100) / 100;
     }
   }
@@ -54,6 +54,9 @@ Vue.component('item-adder', {
             if(!this.selectedType) return;
             return this.selectedType.value === 'mattePoster' || this.selectedType.value === 'glossyPoster';
         }
+    },
+    firebase: {
+        itemTypes: firebase.database().ref('itemTypes')
     },
     methods: {
         toggleForm: function() {
@@ -99,9 +102,9 @@ Vue.component('item-adder', {
             this.clearForm();
         },
         fetchItemTypes: function() {
-            firebase.database().ref('itemTypes').once('value').then((snapshot) => {
-                this.itemTypes = snapshot.val();
-            });
+            // firebase.database().ref('itemTypes').once('value').then((snapshot) => {
+            //     this.itemTypes = snapshot.val();
+            // });
         },
         applyPreset: function(e) {
             let size = e.target.value;
@@ -117,7 +120,7 @@ Vue.component('item-table', {
     template: '#item-table',
     props: {
         items: {
-            type: Array
+            type: Object
         },
         showTotalRow: {
             type: Boolean,
@@ -126,6 +129,9 @@ Vue.component('item-table', {
         editable: {
             type: Boolean,
             default: false
+        },
+        updateItem: {
+            type: Function
         },
         deleteItem: {
             type: Function
@@ -136,19 +142,29 @@ Vue.component('item-table', {
     },
     computed: {
         parsedItems: function() {
-            let items = this.items ? this.items : [];
-            if(items.length === 0 && this.showPlaceholder === true)
-                items.push({ name: '...', cost: 0, qty: 0 });
-            else if(items.length === 0)
-                return [];
-            return items.map((item) => { 
-                return {
+            let items = this.items;
+
+            if(this.itemsEmpty && this.showPlaceholder === true)
+                items[0] = {name: '...', cost: 0, qty: 0 };
+            else if(this.itemsEmpty)
+                return {};
+
+            let parsedItems = {};
+            for(let key in items) {
+                let item = items[key];
+                parsedItems[key] = {
                     name: item.name,
                     cost: item.cost ? '$' + this.moneyFormat(item.cost) : '...',
                     qty: item.qty ? item.qty : '...',
                     total: item.cost ? '$' + this.moneyFormat(item.cost*item.qty) : '...'
                 };
-            });
+            }
+            return parsedItems;
+        },
+        itemsEmpty: function() {
+            if(!this.items)
+                return true;
+            return Object.keys(this.items).length === 0;
         },
         total: function() {
             return this.calculateTotal(this.items);
@@ -156,28 +172,30 @@ Vue.component('item-table', {
     }
 });
 
+/**
+  * Create Main App Vue Instance
+  */
+
 let app = new Vue({
     el: '#app',
     data: {
-        currentOrder: DEFAULT_CURRENT_ORDER,
         isSignedIn: true,
         cardAmount: 0,
-        interdepartmentalAmount: 0
+        interdepartmentalAmount: 0,
+        currentOrder: {}
     },
-    mounted: function() {
-        this.firebaseListenCurrentOrder();
+    firebase: {
+        currentOrder: {
+            asObject: true,
+            source: firebase.database().ref('currentOrder'),
+            cancelCallback: function(err) {
+                console.log('Firebase error: ',err);
+            },
+        }
     },
     computed: {
         total: function() {
             return this.calculateTotal(this.currentOrder.items);
-        }
-    },
-    watch: {
-        currentOrder: {
-            handler: function() {
-                this.firebaseUpdateCurrentOrder();
-            },
-            deep: true
         }
     },
     methods: {
@@ -187,34 +205,35 @@ let app = new Vue({
         signOut: function() {
             alert('sign out')
         },
+        updateItemCurrentOrder: function(key) {
+            let item = this.currentOrder.items[key];
+            // create a copy of the item
+            const copy = {...item};
+            // remove the .key attribute
+            delete copy['.key']/
+            this.$firebaseRefs.currentOrder.child('items').child(key).set(copy);
+        },
         newItemCurrentOrder: function(item) {
-            if(!this.currentOrder)
-                this.currentOrder = DEFAULT_CURRENT_ORDER;
-            console.log('pushing',item)
-            this.currentOrder.items.push(item);
+            this.$firebaseRefs.currentOrder.child('items').push(item);
         },
         deleteItemCurrentOrder: function(key) {
-            console.log('before',this.currentOrder.items.length);
-            let items = this.currentOrder.items;
-            if(!items || items.length <= 0)
-                return;
-            items.splice(key,1)
-            console.log('after',this.currentOrder.items.length);
+            this.$firebaseRefs.currentOrder.child('items').child(key).remove();
         },
         selectPaymentMethod: function(method) {
-            this.currentOrder.isSplitPayment = false;
-            this.currentOrder.splitPayment = { cardAmount: 0, interdepartmentalAmount: 0 };
-            this.currentOrder.isCard = false;
-            this.currentOrder.isInterdepartmental = false;
+            let curOrderRef = this.$firebaseRefs.currentOrder;
+            curOrderRef.child('isSplitPayment').set(false);
+            curOrderRef.child('splitPayment').set({ cardAmount: 0, interdepartmentalAmount: 0 });
+            curOrderRef.child('isCard').set(false);
+            curOrderRef.child('isInterdepartmental').set(false);
             switch(method) {
                 case 'card':
-                    this.currentOrder.isCard = true;
+                    curOrderRef.child('isCard').set(true);
                 break;
                 case 'inter':
-                    this.currentOrder.isInterdepartmental = true;
+                    curOrderRef.child('isInterdepartmental').set(true);
                 break;
                 case 'card+inter':
-                    this.currentOrder.isSplitPayment = true;
+                    curOrderRef.child('isSplitPayment').set(true);
                 break;
             }
         },
@@ -225,55 +244,42 @@ let app = new Vue({
             this.cardAmount = this.total - val;
         },
         interdepartmentalFinalize: function() {
-            this.currentOrder.isCard = false;
-            this.currentOrder.isInterdepartmental = true;
-            this.currentOrder.isPaid = true;
+            this.$firebaseRefs.currentOrder.child('isCard').set(false);
+            this.$firebaseRefs.currentOrder.child('isInterdepartmental').set(true);
+            this.$firebaseRefs.currentOrder.child('isCard').set(true);
         },
-        savePaymentSubmit: function(e) {
+        splitPaymentAmountSubmit: function(e) {
             let card = parseFloat(e.target.elements.card.value);
             let inter = parseFloat(e.target.elements.inter.value);
             if(card + inter !== this.total) {
-                alert('The sum of both amounts must equal the total: $' + this.total +'. Card amount will be automatically calculated upon entering interdepartmental form amount.');
+                alert('The sum of both amounts must equal $' + this.total + 
+                      '. Card amount will be automatically calculated upon entering amount for interdepartmental form.');
                 return;
             }
-            this.currentOrder.splitPayment = {
+            this.$firebaseRefs.currentOrder.child('splitPayment').set({
                 cardAmount: card.toFixed(2),
                 interdepartmentalAmount: inter.toFixed(2)
-            };
-            this.currentOrder.isCard = true;
+            });
+            this.$firebaseRefs.currentOrder.child('isCard').set(true);
         },
         readyToPay: function() {
-            this.currentOrder.isReadyToPay = true;
+            this.$firebaseRefs.currentOrder.child('isReadyToPay').set(true);
         },
         editOrder: function() {
             this.selectPaymentMethod('none');
-            this.currentOrder.isReadyToPay = false;
+            this.$firebaseRefs.currentOrder.child('isReadyToPay').set(false);
         },
         clearScreen: function() {
-            let order = {
+            let resetOrder = {
                 ...DEFAULT_CURRENT_ORDER,
                 resetState: true
             };
-            this.currentOrder = order;
+            this.$firebaseRefs.currentOrder.set(resetOrder);
         },
         cancelOrder: function() {
-            alert('cancel')
-        },
-        firebaseUpdateCurrentOrder() {
-            let ref = firebase.database().ref('currentOrder');
-            ref.set(this.currentOrder);
-        },
-        firebaseListenCurrentOrder() {
-            let ref = firebase.database().ref('currentOrder');
-            ref.on('value', (snapshot) => {
-                let order = snapshot.val() ? snapshot.val() : DEFAULT_CURRENT_ORDER;
-                // make sure the order object has all keys it should have
-                for(let key in DEFAULT_CURRENT_ORDER) {
-                    if(!order.hasOwnProperty(key))
-                        order[key] = DEFAULT_CURRENT_ORDER[key];
-                }
-                this.currentOrder = order;
-            });
+            if(!confirm('Cancel Order: Are you sure? Cancelling will close the payment window if the customer is currently on it. Click "OK" to confirm.'))
+                return;
+            this.clearScreen();
         },
     }
 });

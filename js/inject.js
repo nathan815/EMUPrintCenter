@@ -89,3 +89,12 @@ loadHTML('/inject-toolbar.html')
     }).catch(err => {
         console.error(err);
     });
+
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    console.log(request);
+     switch(request.action) {
+        case 'closePaymentWindow':
+            window.close();
+        break;
+     }
+});

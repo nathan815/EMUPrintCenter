@@ -5,7 +5,7 @@ let app = new Vue({
     el: '#app',
     data: {
         currentState: 'BEGIN',
-        currentOrder: null,
+        currentOrder: {},
         total: 0
     },
     mounted: function() {
@@ -18,57 +18,45 @@ let app = new Vue({
             return this.currentState === 'COMPLETE';
         },
         isSplitPayment: function() {
-            return this.currentOrder.isSplitPayment
+            return this.currentOrder.isSplitPaymentf
                 && this.currentOrder.splitPayment.interdepartmentalAmount > 0
                 && this.currentOrder.splitPayment.cardAmount > 0;
         },
         parsedItems: function() {
-            if(!this.currentOrder || !this.currentOrder.items)
-                this.currentOrder = { items: [] }; 
-            if(this.currentOrder.items.length <= 0)
-                this.currentOrder.items.push({ name: '...', cost: 0, qty: 0 });
-            return this.currentOrder.items.map((item) => { 
-                return {
+            let items = this.currentOrder.items;
+
+            if(this.itemsEmpty && this.showPlaceholder)
+                items[0] = {name: '...', cost: 0, qty: 0 };
+            else if(this.itemsEmpty)
+                return {};
+
+            let parsedItems = {};
+            for(let key in items) {
+                let item = items[key];
+                parsedItems[key] = {
                     name: item.name,
                     cost: item.cost ? '$' + this.moneyFormat(item.cost) : '...',
                     qty: item.qty ? item.qty : '...',
                     total: item.cost ? '$' + this.moneyFormat(item.cost*item.qty) : '...'
                 };
-            });
-        }
+            }
+            return parsedItems;
+        },
+        itemsEmpty: function() {
+            if(!this.currentOrder.items)
+                return true;
+            return Object.keys(this.currentOrder.items).length === 0;
+        },
     },
     methods: {
         moneyFormat: function(num) {
             return num % 1 === 0 ? num : num.toFixed(2);
         },
-        clearOrder: function() {
-            //this.items = [];
-        },
-        orderCancelled: function() {
-            this.clearOrder();
-        },
-        orderCompleted: function() {
-            //this.isOrderComplete = true;
-        },
         openPayWindow: function() {
             this.sendMessage({ action: 'clearPaySiteSessionCookie' });
             this.setState('BEGIN', function() {
                 let payWindow = window.open(EMU_PAY_URL);
-                //this.pollPayWindowClosed(payWindow);
             });
-        },
-        pollPayWindowClosed: function(winObj) {
-            var loop = setInterval(() => {   
-                console.log('checking if window closed')
-                if(winObj.closed) {  
-                    console.log('window is closed')
-                    clearInterval(loop);  
-                    this.payWindowClosed();
-                }
-            }, 1500);
-        },
-        payWindowClosed: function() {
-            this.setState('DEFAULT');
         },
         printReceipt: function() {
             let w = window.open(PRINT_URL);
@@ -100,7 +88,6 @@ let app = new Vue({
                     //this.orderCompleted();
                 break;
                 case 'CANCEL':
-                    this.orderCancelled();
                     this.setState('BEGIN');
                 break;
             };
