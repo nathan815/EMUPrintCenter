@@ -33,6 +33,32 @@ a:hover {
 .text-red {
     color: #cc0f0f;
 }
+
+/* Margin helpers */
+.m-0 {
+    margin: 0;
+}
+.mt-0 {
+    margin-top: 0;
+}
+.mb-0 {
+    margin-bottom: 0;
+}
+.ml-0 {
+    margin-left: 0;
+}
+.mr-0 {
+    margin-right: 0;
+}
+.mx-0 {
+    margin-left: 0;
+    margin-right: 0;
+}
+.my-0 {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
 h1, h2, h3, h4, h5, h6 {
     margin: 0;
 }
@@ -44,9 +70,9 @@ h1, h2, h3, h4, h5, h6 {
     background: #3b8b5f;
     border: 1px solid #3b8b5f;
     outline: none;
-    font-size: 14px;
+    font-size: 16px;
     color: #fff;
-    padding: 10px;
+    padding: 10px 13px;
     border-radius: 5px;
     cursor: pointer;
 }

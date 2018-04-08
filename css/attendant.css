@@ -88,8 +88,16 @@ table.item-table .total {
 	font-size: 115%;
 }
 
-.payment-method-options {
+.payment-box {
 	margin-top: 15px;
+	padding: 15px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 17px;
+}
+.payment-box p {
+	font-size: inherit;
 }
 form.styled input.control {
 	padding: 7px 12px;
@@ -98,6 +106,7 @@ form.styled input.control {
 }
 .split-payment form.styled input.control {
 	width: 100px!important;
+	margin: 7px 0 0 8px;
 }
 
 .item-adder .buttons {

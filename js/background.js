@@ -20,11 +20,13 @@ function changeState(s) {
     });
 }
 
-function orderFinished() {
+function orderComplete() {
     changeState('COMPLETE')
     // save order to firebase allOrders
+    currentOrder.datePaid = new Date().toISOString();
     let orderRef = firebase.database().ref('allOrders').push();
     orderRef.set(currentOrder);
+    currentOrder.isSaved = true;
 }
 
 function handleRequest(request) {
@@ -96,11 +98,18 @@ currentOrderRef.on('value', function(snapshot) {
     currentItems = order.items;
     currentTotal = calculateTotal(currentItems);
 
-    if(order.isPaid)
-        orderFinished();
-    
-    if(order.resetState)
+    if(order.isPaid && !order.isSaved) {
+        orderComplete();
+        order.isSaved = true;
+        firebase.database().ref('currentOrder').set(order);
+    }
+
+    if(order.resetState) {
         changeState('DEFAULT');
+        order.resetState = null;
+        order.isSaved = null;
+        firebase.database().ref('currentOrder').set(order);
+    }
 
     sendMessage({ 
         action: 'currentOrderChanged',

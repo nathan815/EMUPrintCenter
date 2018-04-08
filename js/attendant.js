@@ -1,6 +1,5 @@
 const DEFAULT_CURRENT_ORDER = { 
     items: [],
-    resetState: false
     isReadyToPay: false,
     isCard: false,
     isInterdepartmental: false,
@@ -213,9 +212,6 @@ let app = new Vue({
                 break;
                 case 'inter':
                     this.currentOrder.isInterdepartmental = true;
-                    if(confirm('You have chosen interdepartmental transfer form for payment method. This will FINALIZE the order. Click "OK" to confirm.')) {
-                        this.currentOrder.isPaid = true;
-                    }
                 break;
                 case 'card+inter':
                     this.currentOrder.isSplitPayment = true;
@@ -227,6 +223,11 @@ let app = new Vue({
             if(val > this.total) return;
             this.interdepartmentalAmount = val;
             this.cardAmount = this.total - val;
+        },
+        interdepartmentalFinalize: function() {
+            this.currentOrder.isCard = false;
+            this.currentOrder.isInterdepartmental = true;
+            this.currentOrder.isPaid = true;
         },
         savePaymentSubmit: function(e) {
             let card = parseFloat(e.target.elements.card.value);

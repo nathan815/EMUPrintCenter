@@ -21,7 +21,7 @@
 
         <div class="container" v-cloak>
             <div v-if="isSignedIn">
-                <div class="section current-order">
+                <section class="section current-order">
                     <header>
                         <h2 class="pull-left">Current Order</h2>
                         <div class="pull-right" v-if="currentOrder.items.length > 0">
@@ -62,8 +62,6 @@
                         </button>
                         <!--<p class="payment-instruction">If customer is paying with card, they can click "Pay by Card" on the customer screen. The system will automatically fill in the total and walk through the process on the Emich Payment Site.</p>-->
                     </div>
-                    
-                    <p class="payment-instruction" v-if="currentOrder.isCard">Waiting for card payment from customer...</p>
 
                     <p v-if="currentOrder.isPaid">
                         <i class="fas fa-check-circle"></i> Order payment complete. 
@@ -71,7 +69,7 @@
                     </p>
 
                     <div v-else-if="currentOrder.isReadyToPay" class="payment-method-options">
-                        <div v-if="currentOrder.isSplitPayment && !currentOrder.isCard" class="split-payment">
+                        <div v-if="currentOrder.isSplitPayment && !currentOrder.isCard" class="split-payment payment-box">
                             <form class="styled" v-on:submit.prevent="savePaymentSubmit">
                                 <div class="input-group">
                                     <label>Amount covered by interdepartmental transfer form:</label> <br>
@@ -83,22 +81,29 @@
                                     $<input type="number" class="control" name="card" required min="1" :max="total" step="0.01" :value="cardAmount" />
                                 </div>
                                
-                                <button class="btn">Submit</button>
-                                <br><small><i>Clicking submit will allow the customer to enter their card payment details. <br>Their card will be charged the amount specified.</i></small>
+                                <button class="btn" type="submit">Submit</button>
+                                <br>
+                                <small><i>Clicking submit will allow the customer to enter their card info and proceed through checkout. <br>Their card will be charged the amount specified.</i></small>
                             </form>
                         </div>
-                        <div v-else-if="currentOrder.isSplitPayment">
+                        <div v-else-if="currentOrder.isSplitPayment" class="payment-box">
                             Interdepartmental Form: <b>${{ currentOrder.splitPayment.interdepartmentalAmount }}</b>
                             <br>
                             Charging to Card: <b>${{ currentOrder.splitPayment.cardAmount }}</b>
                         </div>
+                        <div v-else-if="currentOrder.isInterdepartmental" class="payment-box">
+                            <p class="mt-0"><i>Interdepartmental transfer form.</i> Please confirm that the transfer form can cover this amount. Clicking Confirm will <b>finalize</b> this order. </p>
+                            <button class="btn btn-orange" v-on:click="interdepartmentalFinalize()">Confirm</button>
+                        </div>
                     </div>
-                    
+
                     <item-adder v-else :new-item="newItemCurrentOrder"></item-adder>
 
-                </div>
+                    <p class="payment-instruction" v-if="currentOrder.isCard && !currentOrder.isPaid">Waiting for card payment from customer...</p>
 
-                <div class="section orders">
+                </section><!-- end .current-order-->
+
+                <section class="section orders">
 
                     <header>
                         <h2 class="pull-left">
@@ -131,7 +136,7 @@
                         </div><!-- end .details-->
                     </div><!-- end .order-->
 
-                </div><!-- end .section.orders-->
+                </section><!-- end section.orders-->
 
             </div>
             <div v-else class="sign-in-text">
@@ -195,7 +200,7 @@
                     <button type="submit" class="btn btn-light">
                         <i class="fas fa-plus"></i>  Add Item
                     </button>
-                    <small><a href="#" v-on:click.prevent="toggleForm()">Cancel</a></small>
+                    <small><a href="#" v-on:click.prevent="toggleForm()">Close</a></small>
                 </div>
             </form>
 
