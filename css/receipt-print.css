@@ -48,6 +48,17 @@ header img {
     color: #fff;
     text-align: center;
 }
+.split-payment {
+    display: none;
+}
+#footer {
+    margin-top: 150px;
+    width: 100%;
+    font-size: 80%;
+    text-align: center;
+    background: #fff;
+    line-height: 1.3
+}
 @media print {
     body {
         padding-top: 50px;
