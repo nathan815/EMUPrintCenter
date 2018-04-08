@@ -1,6 +1,5 @@
 const BASE_URL = 'https://ebill.emich.edu/C20704_ustores/';
 let currentState = 'DEFAULT';
-let database = firebase.database();
 let currentTotal = 0;
 let currentItems = {};
 let currentOrder = {};
@@ -21,6 +20,13 @@ function changeState(s) {
     });
 }
 
+function orderFinished() {
+    changeState('COMPLETE')
+    // save order to firebase allOrders
+    let orderRef = firebase.database().ref('allOrders').push();
+    orderRef.set(currentOrder);
+}
+
 function handleRequest(request) {
     if(request.setState)
         changeState(request.setState);
@@ -29,7 +35,13 @@ function handleRequest(request) {
     let returnData = {};
     switch(request.action) {
         case 'getCost':
-            returnData = { cost: currentTotal };
+            let cost = currentTotal;
+            if(currentOrder.isSplitPayment && currentOrder.splitPayment.interdepartmentalAmount > 0
+                && currentOrder.splitPayment.cardAmount > 0)
+            {
+                cost = currentOrder.splitPayment.cardAmount;
+            }
+            returnData = { cost: cost };
         break;
         case 'getCurrentOrder':
             returnData = { order: currentOrder, total: currentTotal };
@@ -79,18 +91,23 @@ function calculateTotal(items) {
 
 let currentOrderRef = firebase.database().ref('currentOrder');
 currentOrderRef.on('value', function(snapshot) {
-    console.log(snapshot.val());
     let order = snapshot.val();
     currentOrder = order;
     currentItems = order.items;
     currentTotal = calculateTotal(currentItems);
+
+    if(order.isPaid)
+        orderFinished();
+    
+    if(order.resetState)
+        changeState('DEFAULT');
+
     sendMessage({ 
         action: 'currentOrderChanged',
         order: order,
         total: currentTotal
     });
 });
-
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     sendResponse(handleRequest(request));

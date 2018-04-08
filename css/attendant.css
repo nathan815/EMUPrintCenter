@@ -12,15 +12,19 @@
 .section > header h3 {
 	margin: 0;
 }
+.clearfix {
+	clear: both;
+}
+.section {
+	margin-bottom: 50px;
+}
 .section > header {
 	margin: 10px 0;
 	padding: 0 0 10px;
 	border-bottom: 1px dashed #ccc;
 	overflow: hidden;
 }
-.section {
-	margin-bottom: 50px;
-}
+
 .order {
 	font-size: 19px;
 }
@@ -49,8 +53,10 @@
 .order .items {	
 	margin: 5px 0 0;
 }
+
 table.item-table {
 	width: 500px;
+	margin: 0 0 15px;
 }
 table.item-table th {
 	text-align: left;
@@ -58,6 +64,75 @@ table.item-table th {
 	font-weight: normal;
 	color: #555;
 }
+table.item-table td {
+	padding: 7px 0 0;
+}
+table.item-table .right {
+	text-align: right;
+	width: 80px;
+}
 table.item-table .product {
 	width: 55%;
+}
+table.item-table input.qty {
+	width: 40px;
+	font-size: 16px;
+	padding: 3px;
+}
+table.item-table .delete {
+	color: #555;
+	cursor: pointer;
+}
+table.item-table .total {
+	padding-top: 10px;
+	font-size: 115%;
+}
+
+.payment-method-options {
+	margin-top: 15px;
+}
+form.styled input.control {
+	padding: 7px 12px;
+	font-size: 1em;
+	width: 110px;
+}
+.split-payment form.styled input.control {
+	width: 100px!important;
+}
+
+.item-adder .buttons {
+	margin-top: 10px;
+}
+.item-adder .btn {
+	margin-right: 5px;
+}
+.item-adder .v-select {
+    margin-bottom: 10px;
+    width: 498px;
+}
+.item-adder select.preset-size {
+	margin-left: 10px;
+	width: 190px;
+}
+.v-select .active a,
+.v-select.dropdown .highlight a,
+.v-select.dropdown li:hover a {
+    background: #3b8b5f!important;
+    color: #fff!important;
+}
+.item-adder .v-select-input-proxy {
+	position: absolute;
+	width: calc(100% - 1px); 
+	height: calc(100% - 1px);
+	border: none;
+	border-radius: 5px;
+	background: none;
+	left: 0%; bottom: 0;
+	z-index: -1;
+	opacity: 0;
+}
+.payment-instruction {
+	font-size: 16px;
+	font-style: italic;
+	margin: 10px 0;
 }

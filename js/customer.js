@@ -15,10 +15,16 @@ let app = new Vue({
     },
     computed: {
         isOrderComplete: function() {
-            return this.currentState === 'COMPLETED';
+            return this.currentState === 'COMPLETE';
+        },
+        isSplitPayment: function() {
+            return this.currentOrder.isSplitPayment
+                && this.currentOrder.splitPayment.interdepartmentalAmount > 0
+                && this.currentOrder.splitPayment.cardAmount > 0;
         },
         parsedItems: function() {
-            if(!this.currentOrder || !this.currentOrder.items) return;
+            if(!this.currentOrder || !this.currentOrder.items)
+                this.currentOrder = { items: [] }; 
             if(this.currentOrder.items.length <= 0)
                 this.currentOrder.items.push({ name: '...', cost: 0, qty: 0 });
             return this.currentOrder.items.map((item) => { 
@@ -66,11 +72,22 @@ let app = new Vue({
         },
         printReceipt: function() {
             let w = window.open(PRINT_URL);
-            let date = new Date(this.currentOrder.dateCompleted);
+            let date = new Date(this.currentOrder.datePaid);
+            let paidWith = 'Paid with';
+            if(this.currentOrder.isSplitPayment) {
+                paidWith += ':<br> - Interdepartmental Transfer Form: ' + this.currentOrder.splitPayment.interdepartmentalAmount;
+                paidWith += '<br> - Card: ' + this.currentOrder.splitPayment.cardAmount;
+            }
+            else if(this.currentOrder.isInterdepartmental) {
+                paidWith += ' Interdepartmental Transfer Form';
+            }
+            else if(this.currentOrder.isCard) {
+                paidWith += ' Card';
+            }
             w.onload = function() {
                 w.document.getElementById('receipt-data').innerHTML = document.getElementById('receipt').innerHTML;
-                w.document.getElementById('date').innerHTML = date.toLocaleDateString('en-US') + ' ' + date.toLocaleTimeString('en-US');
-                w.document.getElementById('paid-with').innerHTML = 'Paid with Card';
+                w.document.getElementById('date').innerHTML = 'Order Processed ' + date.toLocaleDateString('en-US') + ' ' + date.toLocaleTimeString('en-US');
+                w.document.getElementById('paid-with').innerHTML = paidWith;
             };
         },
         handleStateChange: function(state) {
@@ -79,7 +96,7 @@ let app = new Vue({
             switch(state) {
                 case 'BEGIN':
                 break;
-                case 'COMPLETED':
+                case 'COMPLETE':
                     //this.orderCompleted();
                 break;
                 case 'CANCEL':

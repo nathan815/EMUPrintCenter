@@ -12,6 +12,7 @@ function fillCostInputAndContinue() {
     var costInput = eleId('ADD_ON_OFFER_USER_DEFINED_AMOUNT_49_49');
     if(costInput) {
         chrome.runtime.sendMessage({action: 'getCost',setState:'CHECKOUT'}, function(response) {
+            console.log('cost',response.cost);
           costInput.value = response.cost;
           costInput.form.submit();
         });

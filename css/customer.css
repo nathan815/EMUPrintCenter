@@ -52,6 +52,9 @@ a:hover {
     text-align: left;
     font-size: 14px;
 }
+#receipt table td {
+    padding: 7px 0 0;
+}
 #receipt table td.product {
     width: 60%;
 }
@@ -72,6 +75,9 @@ a:hover {
 #receipt footer .waiting-order {
     font-size: 90%;
     font-style: italic;
+}
+#receipt footer .split-payment {
+    font-size: 80%;
 }
 .payment-info {
     color: #777;

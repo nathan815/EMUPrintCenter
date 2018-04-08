@@ -16,7 +16,7 @@
 
         <div class="leading-text">
             <p v-if="isOrderComplete">
-                <i class="fas fa-check-square"></i>
+                <i class="fas fa-check-circle"></i>
                 Your order is complete.<br>
                 Thank you!
             </p>
@@ -37,16 +37,23 @@
                     <td class="right">{{ item.total }}</td>
                 </tr>
             </table>
-            <footer>
-                <span v-if="total">Total: <b v-cloak>${{ total.toFixed(2) }}</b></span>
+            <footer v-cloak>
+                <span v-if="total">Total: <b>${{ total.toFixed(2) }}</b></span>
                 <span v-else class="waiting-order">Waiting for order...</span>
+                <div v-if="isSplitPayment" class="split-payment">
+                    Interdepartmental Form: <span class="text-red">-${{ currentOrder.splitPayment.interdepartmentalAmount }}</span>
+                    <br>
+                    Balance Due: <b>${{ currentOrder.splitPayment.cardAmount }} </b>
+                </div>
             </footer>
         </div>
         <div v-if="isOrderComplete">
             <p>Click below if you want a copy of your receipt.</p>
             <button v-on:click="printReceipt" class="btn btn-lg"><i class="fas fa-print"></i> Print Receipt</button>
         </div>
-        <button v-else v-on:click="openPayWindow" :disabled="!currentOrder.isReadyToPay" class="btn btn-lg">Pay with Card <i class="fas fa-arrow-right"></i></button>
+        <button v-else v-on:click="openPayWindow" :disabled="currentOrder && !currentOrder.isCard" class="btn btn-lg">
+            Pay with Card <i class="fas fa-arrow-right"></i>
+        </button>
 
         <div class="payment-info">
             <p><b>Important:</b> We can only accept cards and interdepartmental transfer forms.</p>
