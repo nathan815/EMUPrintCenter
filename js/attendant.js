@@ -119,26 +119,12 @@ Vue.component('item-adder', {
 Vue.component('item-table', {
     template: '#item-table',
     props: {
-        items: {
-            type: Object
-        },
-        showTotalRow: {
-            type: Boolean,
-            default: true
-        },
-        editable: {
-            type: Boolean,
-            default: false
-        },
-        updateItem: {
-            type: Function
-        },
-        deleteItem: {
-            type: Function
-        },
-        showPlaceholder: {
-            type: Boolean
-        },
+        items: Object,
+        showTotalRow: { type: Boolean, default: true },
+        editable: { type: Boolean, default: false },
+        updateItem: Function,
+        deleteItem: Function,
+        showPlaceholder: Boolean,
     },
     computed: {
         parsedItems: function() {
@@ -208,10 +194,10 @@ let app = new Vue({
         updateItemCurrentOrder: function(key) {
             let item = this.currentOrder.items[key];
             // create a copy of the item
-            const copy = {...item};
+            const itemCopy = {...item};
             // remove the .key attribute
-            delete copy['.key']/
-            this.$firebaseRefs.currentOrder.child('items').child(key).set(copy);
+            delete itemCopy['.key'];
+            this.$firebaseRefs.currentOrder.child('items').child(key).set(itemCopy);
         },
         newItemCurrentOrder: function(item) {
             this.$firebaseRefs.currentOrder.child('items').push(item);
@@ -246,7 +232,7 @@ let app = new Vue({
         interdepartmentalFinalize: function() {
             this.$firebaseRefs.currentOrder.child('isCard').set(false);
             this.$firebaseRefs.currentOrder.child('isInterdepartmental').set(true);
-            this.$firebaseRefs.currentOrder.child('isCard').set(true);
+            this.$firebaseRefs.currentOrder.child('isPaid').set(true);
         },
         splitPaymentAmountSubmit: function(e) {
             let card = parseFloat(e.target.elements.card.value);
@@ -262,6 +248,13 @@ let app = new Vue({
             });
             this.$firebaseRefs.currentOrder.child('isCard').set(true);
         },
+        printReceipt: function() {
+            let w = window.open('/receipt-print.html');
+            w.printData = {
+                currentOrder: this.currentOrder,
+                receiptHtml: document.getElementById('current-order-items').outerHTML
+            };
+        },
         readyToPay: function() {
             this.$firebaseRefs.currentOrder.child('isReadyToPay').set(true);
         },
@@ -270,16 +263,19 @@ let app = new Vue({
             this.$firebaseRefs.currentOrder.child('isReadyToPay').set(false);
         },
         clearScreen: function() {
-            let resetOrder = {
+            // reset currentOrder
+            this.$firebaseRefs.currentOrder.set({
                 ...DEFAULT_CURRENT_ORDER,
                 resetState: true
-            };
-            this.$firebaseRefs.currentOrder.set(resetOrder);
+            });
         },
         cancelOrder: function() {
-            if(!confirm('Cancel Order: Are you sure? Cancelling will close the payment window if the customer is currently on it. Click "OK" to confirm.'))
-                return;
-            this.clearScreen();
+            let msg = '';
+            if(this.currentOrder.isCard) 
+                msg += 'WARNING: Cancelling the order will close the card payment window.\n';
+            msg += 'Are you sure you want to cancel the order? Click "OK" to confirm.';
+            if(confirm(msg))
+                this.clearScreen();
         },
     }
 });

@@ -1,9 +1,12 @@
 body {
-    font-family: Courier, sans-serif;
+    font-family: Courier, monospace;
     font-size: 25px;
     margin: 0;
-    padding: 0;
+    width: 100%;
 }
+/* hide print header/footer */
+@page { margin: 1mm; }
+
 h5 {
     margin: 0;
 }
@@ -12,7 +15,7 @@ p {
 }
 table {
     font-size: inherit;
-    width: 600px;
+    width: 100%;
     margin: 20px 0;
 }
 td, th {
@@ -40,13 +43,17 @@ header img {
     padding: 0 20px;
 }
 .bar {
-    padding: 10px 0;
+    padding: 15px 0;
     margin: 0 0 20px;
     width: 100%;
     font-size: 26px;
     background: #333;
     color: #fff;
     text-align: center;
+}
+.bar img {
+    width: 50px;
+    vertical-align: middle;
 }
 .split-payment {
     display: none;
@@ -63,9 +70,6 @@ header img {
 @media print {
     body {
         padding-top: 50px;
-    }
-    table {
-        width: 650px;
     }
     .bar {
         display: none;

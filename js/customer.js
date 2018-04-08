@@ -18,17 +18,16 @@ let app = new Vue({
             return this.currentState === 'COMPLETE';
         },
         isSplitPayment: function() {
-            return this.currentOrder.isSplitPaymentf
+            return this.currentOrder.isSplitPayment
                 && this.currentOrder.splitPayment.interdepartmentalAmount > 0
                 && this.currentOrder.splitPayment.cardAmount > 0;
         },
         parsedItems: function() {
             let items = this.currentOrder.items;
-
-            if(this.itemsEmpty && this.showPlaceholder)
+            if(this.itemsEmpty) {
+                items = {};
                 items[0] = {name: '...', cost: 0, qty: 0 };
-            else if(this.itemsEmpty)
-                return {};
+            }
 
             let parsedItems = {};
             for(let key in items) {
@@ -60,22 +59,9 @@ let app = new Vue({
         },
         printReceipt: function() {
             let w = window.open(PRINT_URL);
-            let date = new Date(this.currentOrder.datePaid);
-            let paidWith = 'Paid with';
-            if(this.currentOrder.isSplitPayment) {
-                paidWith += ':<br> - Interdepartmental Transfer Form: ' + this.currentOrder.splitPayment.interdepartmentalAmount;
-                paidWith += '<br> - Card: ' + this.currentOrder.splitPayment.cardAmount;
-            }
-            else if(this.currentOrder.isInterdepartmental) {
-                paidWith += ' Interdepartmental Transfer Form';
-            }
-            else if(this.currentOrder.isCard) {
-                paidWith += ' Card';
-            }
-            w.onload = function() {
-                w.document.getElementById('receipt-data').innerHTML = document.getElementById('receipt').innerHTML;
-                w.document.getElementById('date').innerHTML = 'Order Processed ' + date.toLocaleDateString('en-US') + ' ' + date.toLocaleTimeString('en-US');
-                w.document.getElementById('paid-with').innerHTML = paidWith;
+            w.printData = {
+                currentOrder: this.currentOrder,
+                receiptHtml: document.getElementById('receipt').innerHTML
             };
         },
         handleStateChange: function(state) {

@@ -57,9 +57,9 @@
 	margin: 5px 0 0;
 }
 
-table.item-table {
+.item-table-container {
 	width: 500px;
-	margin: 0 0 15px;
+    margin: 0 0 15px;
 }
 table.item-table th {
 	text-align: left;

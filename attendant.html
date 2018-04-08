@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>EMU Print Center Attendant</title>
+    <meta charset="UTF-8" />
     <link rel="stylesheet" href="css/inject.css" />
     <link rel="stylesheet" href="css/interface.css" />
     <link rel="stylesheet" href="css/attendant.css" />
@@ -27,11 +28,11 @@
                         <h2 class="pull-left">Current Order</h2>
                         <div class="pull-right" v-if="currentOrder.items">
                             <div v-if="currentOrder.isPaid">
-                                <button class="btn btn-light">
+                                <button class="btn btn-light" v-on:click="printReceipt()">
                                     <i class="fas fa-print"></i> Print Customer Receipt
                                 </button>
                                 <button class="btn btn-light" v-on:click="clearScreen()">
-                                    <i class="fas fa-arrow-right"></i> Clear Screen
+                                    <i class="fas fa-check-circle"></i> Clear Screen
                                 </button>
                             </div>
                             <button v-else-if="!currentOrder.isReadyToPay" class="btn btn-light" v-on:click="readyToPay()">
@@ -50,24 +51,24 @@
                     <item-table :items="currentOrder.items" :show-total-row="true" 
                                 :delete-item="deleteItemCurrentOrder" :show-placeholder="false"
                                 :editable="!currentOrder.isReadyToPay && !currentOrder.isPaid"
-                                :update-item="updateItemCurrentOrder">
+                                :update-item="updateItemCurrentOrder" id="current-order-items">
                     </item-table>
                     
                     <div v-if="currentOrder.isReadyToPay && !currentOrder.isPaid">
                         Payment Method <i class="fas fa-arrow-right"></i> &nbsp;
                         <button class="btn btn-light" v-on:click="selectPaymentMethod('card')">
-                            <i class="fas fa-credit-card"></i> Card
+                            <i class="far fa-credit-card"></i> Card
                         </button>
                         <button class="btn btn-light" v-on:click="selectPaymentMethod('inter')">
                             <i class="fas fa-exchange-alt"></i> Interdepartmental
                         </button>
                         <button class="btn btn-light" v-on:click="selectPaymentMethod('card+inter')">
-                            <i class="fas fa-credit-card"></i> Card + <i class="fas fa-exchange-alt"></i> Interdepartmental
+                            <i class="far fa-credit-card"></i> Card + <i class="fas fa-exchange-alt"></i> Interdepartmental
                         </button>
                         <!--<p class="payment-instruction">If customer is paying with card, they can click "Pay by Card" on the customer screen. The system will automatically fill in the total and walk through the process on the Emich Payment Site.</p>-->
                     </div>
 
-                    <div v-else-if="currentOrder.isSplitPayment && currentOrder.splitPayment.interdepartmentalAmount > 0" class="payment-box">
+                    <div v-if="currentOrder.isReadyToPay && currentOrder.isSplitPayment && currentOrder.splitPayment.interdepartmentalAmount > 0" class="payment-box">
                         <u>Split Payment Method</u>
                         <br>
                         Interdepartmental Form: <b>${{ currentOrder.splitPayment.interdepartmentalAmount }}</b>
@@ -78,10 +79,12 @@
                     <p v-if="currentOrder.isPaid">
                         <i class="fas fa-check-circle"></i> 
                         <span v-if="currentOrder.isCard">Card payment complete.</span>
-                        <span v-else>Paid via Interdepartmental Transfer Form.</span>
+                        <span v-else>Paid with Interdepartmental Transfer Form.</span>
                     </p>
 
                     <div v-else-if="currentOrder.isReadyToPay" class="payment-method-options">
+
+
                         <div v-if="currentOrder.isSplitPayment && !currentOrder.isCard" class="split-payment payment-box">
                             <form class="styled" v-on:submit.prevent="splitPaymentAmountSubmit">
                                 <div class="input-group">
@@ -103,6 +106,7 @@
                             <p class="mt-0"><i>Payment via interdepartmental transfer form.</i> Please confirm that the transfer form can cover this amount. Clicking Confirm will <b>finalize</b> this order. </p>
                             <button class="btn btn-orange" v-on:click="interdepartmentalFinalize()">Confirm</button>
                         </div>
+
                     </div>
 
                     <item-adder v-else :new-item="newItemCurrentOrder"></item-adder>
@@ -156,30 +160,33 @@
     </div><!-- end #app-->
 
     <script type="text/x-template" id="item-table">
-        <table class="item-table" v-if="!itemsEmpty">
-            <tr>
-                <th class="product">Product</th>
-                <th class="right">Cost</th>
-                <th class="right">Qty</th>
-                <th class="right">Total</th>
-                <th v-if="editable && !itemsEmpty"></th>
-            </tr>
-            <tr v-for="(item,key) in parsedItems" :key="key">
-                <td class="product">{{ item.name }}</td>
-                <td class="right">{{ item.cost }}</td>
-                <td v-if="editable" class="right">
-                    <input type="number" v-model="items[key].qty" v-on:change="updateItem(key)" class="qty" min="1" />
-                </td>
-                <td v-else class="right">{{ item.qty }}</td>
-                <td class="right">{{ item.total }}</td>
-                <td v-if="editable && !itemsEmpty" class="right delete" title="Remove item from order">
-                    <i class="fas fa-trash" v-on:click="deleteItem(key)"></i>
-                </td>
-            </tr>
-            <tr v-if="showTotalRow && total > 0">
-                <td colspan="4" class="total">Total: <b>${{ total.toFixed(2) }}</b></td>
-            </tr>
-        </table>
+        <div class="item-table-container">
+            <p v-if="itemsEmpty">No items in order yet.</p>
+            <table v-else class="item-table">
+                <tr>
+                    <th class="product">Product</th>
+                    <th class="right">Cost</th>
+                    <th class="right">Qty</th>
+                    <th class="right">Total</th>
+                    <th v-if="editable && !itemsEmpty"></th>
+                </tr>
+                <tr v-for="(item,key) in parsedItems" :key="key">
+                    <td class="product">{{ item.name }}</td>
+                    <td class="right">{{ item.cost }}</td>
+                    <td v-if="editable" class="right">
+                        <input type="number" v-model="items[key].qty" v-on:change="updateItem(key)" class="qty" min="1" />
+                    </td>
+                    <td v-else class="right">{{ item.qty }}</td>
+                    <td class="right">{{ item.total }}</td>
+                    <td v-if="editable && !itemsEmpty" class="right delete" title="Remove item from order">
+                        <i class="fas fa-trash" v-on:click="deleteItem(key)"></i>
+                    </td>
+                </tr>
+            </table>
+            <footer v-if="showTotalRow && total > 0">
+                Total: <b>${{ total.toFixed(2) }}</b>
+            </footer>
+        </div>
     </script>
 
     <script type="text/x-template" id="item-adder">
