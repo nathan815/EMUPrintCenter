@@ -1,5 +1,6 @@
 const DEFAULT_CURRENT_ORDER = { 
     items: [],
+    resetState: false
     isReadyToPay: false,
     isCard: false,
     isInterdepartmental: false,
@@ -172,6 +173,14 @@ let app = new Vue({
             return this.calculateTotal(this.currentOrder.items);
         }
     },
+    watch: {
+        currentOrder: {
+            handler: function() {
+                this.firebaseUpdateCurrentOrder();
+            },
+            deep: true
+        }
+    },
     methods: {
         signIn: function() {
             alert('sign in')
@@ -184,7 +193,6 @@ let app = new Vue({
                 this.currentOrder = DEFAULT_CURRENT_ORDER;
             console.log('pushing',item)
             this.currentOrder.items.push(item);
-            this.updateCurrentOrder();
         },
         deleteItemCurrentOrder: function(key) {
             console.log('before',this.currentOrder.items.length);
@@ -192,7 +200,6 @@ let app = new Vue({
             if(!items || items.length <= 0)
                 return;
             items.splice(key,1)
-            this.updateCurrentOrder();
             console.log('after',this.currentOrder.items.length);
         },
         selectPaymentMethod: function(method) {
@@ -214,7 +221,6 @@ let app = new Vue({
                     this.currentOrder.isSplitPayment = true;
                 break;
             }
-            this.updateCurrentOrder();
         },
         updateInterdepartmentalAmount: function(e) {
             let val = e.target.value;
@@ -234,16 +240,13 @@ let app = new Vue({
                 interdepartmentalAmount: inter.toFixed(2)
             };
             this.currentOrder.isCard = true;
-            this.updateCurrentOrder();
         },
         readyToPay: function() {
             this.currentOrder.isReadyToPay = true;
-            this.updateCurrentOrder();
         },
         editOrder: function() {
             this.selectPaymentMethod('none');
             this.currentOrder.isReadyToPay = false;
-            this.updateCurrentOrder();
         },
         clearScreen: function() {
             let order = {
@@ -251,12 +254,11 @@ let app = new Vue({
                 resetState: true
             };
             this.currentOrder = order;
-            this.updateCurrentOrder();
         },
         cancelOrder: function() {
             alert('cancel')
         },
-        updateCurrentOrder() {
+        firebaseUpdateCurrentOrder() {
             let ref = firebase.database().ref('currentOrder');
             ref.set(this.currentOrder);
         },
