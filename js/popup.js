@@ -11,6 +11,10 @@ document.getElementById('change-state').onclick = function() {
     if(newState)
         setState(newState);
 }
+document.getElementById('complete').onclick = function() {
+    chrome.runtime.sendMessage({ action: 'paymentComplete' });
+}
+
 function setState(state) {
     chrome.runtime.sendMessage({ setState: state });
 }

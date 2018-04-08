@@ -24,6 +24,9 @@
 	border-bottom: 1px dashed #ccc;
 	overflow: hidden;
 }
+.section > header .btn {
+	margin-left: 3px;
+}
 
 .order {
 	font-size: 19px;

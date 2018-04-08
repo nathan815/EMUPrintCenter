@@ -20,6 +20,7 @@
         </div>
 
         <div class="container" v-cloak>
+            
             <div v-if="isSignedIn">
                 <section class="section current-order">
                     <header>
@@ -30,7 +31,7 @@
                                     <i class="fas fa-print"></i> Print Customer Receipt
                                 </button>
                                 <button class="btn btn-light" v-on:click="clearScreen()">
-                                    <i class="fas fa-times"></i> Clear Screen
+                                    <i class="fas fa-arrow-right"></i> Clear Screen
                                 </button>
                             </div>
                             <button v-else-if="!currentOrder.isReadyToPay" class="btn btn-light" v-on:click="readyToPay()">
@@ -63,9 +64,18 @@
                         <!--<p class="payment-instruction">If customer is paying with card, they can click "Pay by Card" on the customer screen. The system will automatically fill in the total and walk through the process on the Emich Payment Site.</p>-->
                     </div>
 
+                    <div v-if="currentOrder.isSplitPayment && currentOrder.splitPayment.interdepartmentalAmount > 0" class="payment-box">
+                        <u>Split Payment Method</u>
+                        <br>
+                        Interdepartmental Form: <b>${{ currentOrder.splitPayment.interdepartmentalAmount }}</b>
+                        <br>
+                        Charge to Card: <b>${{ currentOrder.splitPayment.cardAmount }}</b>
+                    </div>
+
                     <p v-if="currentOrder.isPaid">
-                        <i class="fas fa-check-circle"></i> Order payment complete. 
-                        <span v-if="currentOrder.isCard">Emich receipt has been printed.</span>
+                        <i class="fas fa-check-circle"></i> 
+                        <span v-if="currentOrder.isCard">Card payment complete.</span>
+                        <span v-else>Paid via Interdepartmental Transfer Form.</span>
                     </p>
 
                     <div v-else-if="currentOrder.isReadyToPay" class="payment-method-options">
@@ -83,16 +93,11 @@
                                
                                 <button class="btn" type="submit">Submit</button>
                                 <br>
-                                <small><i>Clicking submit will allow the customer to enter their card info and proceed through checkout. <br>Their card will be charged the amount specified.</i></small>
+                                <small><i>Clicking submit will allow the customer to enter their card info and proceed through checkout like normal.</i></small>
                             </form>
                         </div>
-                        <div v-else-if="currentOrder.isSplitPayment" class="payment-box">
-                            Interdepartmental Form: <b>${{ currentOrder.splitPayment.interdepartmentalAmount }}</b>
-                            <br>
-                            Charging to Card: <b>${{ currentOrder.splitPayment.cardAmount }}</b>
-                        </div>
                         <div v-else-if="currentOrder.isInterdepartmental" class="payment-box">
-                            <p class="mt-0"><i>Interdepartmental transfer form.</i> Please confirm that the transfer form can cover this amount. Clicking Confirm will <b>finalize</b> this order. </p>
+                            <p class="mt-0"><i>Payment via interdepartmental transfer form.</i> Please confirm that the transfer form can cover this amount. Clicking Confirm will <b>finalize</b> this order. </p>
                             <button class="btn btn-orange" v-on:click="interdepartmentalFinalize()">Confirm</button>
                         </div>
                     </div>
