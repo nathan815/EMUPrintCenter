@@ -1,11 +1,38 @@
 {
-  "name": "emu-printcenter-pos",
+  "name": "emu-printcenter",
   "version": "1.0.0",
   "description": "Chrome extension for the EMU Print Center",
+  "author": "Nathan Johnson",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "watch": "webpack --watch"
   },
-  "author": "",
-  "license": "ISC"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nathan815/emuprintcenter.git"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "clean-webpack-plugin": "^0.1.19",
+    "copy-webpack-plugin": "^4.5.1",
+    "css-loader": "^0.28.11",
+    "file-loader": "^1.1.11",
+    "style-loader": "^0.20.3",
+    "vue-loader": "^14.2.2",
+    "vue-template-compiler": "^2.5.16",
+    "webpack": "^3.10.0",
+    "webpack-notifier": "^1.5.1"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome": "^1.1.5",
+    "firebase": "^4.12.1",
+    "vue": "^2.5.16",
+    "vue-select": "^2.4.0",
+    "vuefire": "^1.4.5"
+  }
 }

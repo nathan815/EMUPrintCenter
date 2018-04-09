@@ -12,7 +12,7 @@
     "content_scripts": [
         {
           "matches": ["https://ebill.emich.edu/C20704_ustores/*"],
-          "js": ["js/inject.js"],
+          "js": ["inject.js"],
           "css": ["css/inject.css"],
           "run_at": "document_idle"
         }

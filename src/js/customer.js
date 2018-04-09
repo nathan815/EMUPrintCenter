@@ -1,6 +1,8 @@
 const EMU_PAY_URL = 'https://ebill.emich.edu/C20704_ustores/web/product_detail.jsp?PRODUCTID=49&SINGLESTORE=true';
 const PRINT_URL = '/receipt-print.html';
 
+import Vue from 'vue';
+
 let app = new Vue({
     el: '#app',
     data: {

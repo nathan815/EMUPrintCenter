@@ -1,19 +1,16 @@
-const DEFAULT_CURRENT_ORDER = { 
-    items: [],
-    isReadyToPay: false,
-    isCard: false,
-    isInterdepartmental: false,
-    isSplitPayment: false,
-    splitPayment: {
-        cardAmount: 0,
-        interdepartmentalAmount: 0
-    },
-    isPaid: false,
-    datePaid: ''
-};
+import Vue from 'vue';
+import firebase from './firebase';
 
-Vue.component('v-select', VueSelect.VueSelect);
+import VueSelect from 'vue-select';
+import VueFire from 'vuefire';
+import ItemTable from './components/ItemTable';
+import ItemAdder from './components/ItemAdder';
+
+// Initialize Components
 Vue.use(VueFire);
+Vue.component('v-select', VueSelect);
+Vue.component('item-table', ItemTable);
+Vue.component('item-adder', ItemAdder);
 
 Vue.mixin({
   methods: {
@@ -31,133 +28,21 @@ Vue.mixin({
         return Math.round(total * 100) / 100;
     }
   }
-})
-
-Vue.component('item-adder', {
-    template: '#item-adder',
-    data: function() {
-        return {
-            isFormVisible: false,
-            selectedType: null,
-            itemTypes: [],
-            presetSizes: [ {w:40,l:54}, {w:36,l:48}, {w:24,l:36}, {w:18,l:24} ],
-            posterWidth: null,
-            posterLength: null,
-            qty: null
-        }
-    },
-    mounted: function() {
-        this.fetchItemTypes();
-    },
-    props: ['newItem', 'deleteItem'],
-    computed: {
-        isPoster: function() {
-            if(!this.selectedType) return;
-            return this.selectedType.value === 'mattePoster' || this.selectedType.value === 'glossyPoster';
-        }
-    },
-    firebase: {
-        itemTypes: firebase.database().ref('itemTypes')
-    },
-    methods: {
-        toggleForm: function() {
-            this.isFormVisible = !this.isFormVisible;
-        },
-        clearForm: function() {
-            this.selectedType = null;
-            this.posterLength = null;
-            this.posterWidth = null;
-            this.qty = null;
-        },
-        addItemSubmit: function() {
-            if(!this.selectedType) {
-                alert('Choose an item type.')
-                return;
-            }
-            let name = '';
-            let cost = this.selectedType.price.num;
-            if(this.selectedType.value.toLowerCase().indexOf('poster') > -1) {
-                // calculate cost of poster
-                let l = this.posterLength;
-                let w = this.posterWidth;
-                let side;
-                const MAX_WIDTH = 41;
-
-                if(l > MAX_WIDTH)
-                    side = l;
-                else if(l < w)
-                    side = l;
-                else
-                    side = w;
-
-                cost = side * this.selectedType.price.num;
-                name = this.posterLength + 'x' + this.posterWidth + ' ';
-            }
-            name += this.selectedType.label;
-            let item = {
-                name: name,
-                qty: this.qty,
-                cost: cost
-            };
-            this.newItem(item);
-            this.clearForm();
-        },
-        fetchItemTypes: function() {
-            // firebase.database().ref('itemTypes').once('value').then((snapshot) => {
-            //     this.itemTypes = snapshot.val();
-            // });
-        },
-        applyPreset: function(e) {
-            let size = e.target.value;
-            if(!size) return;
-            size = size.split('x');
-            this.posterLength = size[0];
-            this.posterWidth = size[1];
-        }
-    }
 });
 
-Vue.component('item-table', {
-    template: '#item-table',
-    props: {
-        items: Object,
-        showTotalRow: { type: Boolean, default: true },
-        editable: { type: Boolean, default: false },
-        updateItem: Function,
-        deleteItem: Function,
-        showPlaceholder: Boolean,
+const DEFAULT_CURRENT_ORDER = { 
+    items: [],
+    isReadyToPay: false,
+    isCard: false,
+    isInterdepartmental: false,
+    isSplitPayment: false,
+    splitPayment: {
+        cardAmount: 0,
+        interdepartmentalAmount: 0
     },
-    computed: {
-        parsedItems: function() {
-            let items = this.items;
-
-            if(this.itemsEmpty && this.showPlaceholder === true)
-                items[0] = {name: '...', cost: 0, qty: 0 };
-            else if(this.itemsEmpty)
-                return {};
-
-            let parsedItems = {};
-            for(let key in items) {
-                let item = items[key];
-                parsedItems[key] = {
-                    name: item.name,
-                    cost: item.cost ? '$' + this.moneyFormat(item.cost) : '...',
-                    qty: item.qty ? item.qty : '...',
-                    total: item.cost ? '$' + this.moneyFormat(item.cost*item.qty) : '...'
-                };
-            }
-            return parsedItems;
-        },
-        itemsEmpty: function() {
-            if(!this.items)
-                return true;
-            return Object.keys(this.items).length === 0;
-        },
-        total: function() {
-            return this.calculateTotal(this.items);
-        }
-    }
-});
+    isPaid: false,
+    datePaid: ''
+};
 
 /**
   * Create Main App Vue Instance

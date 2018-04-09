@@ -1,3 +1,5 @@
+import firebase from './firebase';
+
 const BASE_URL = 'https://ebill.emich.edu/C20704_ustores/';
 let currentState = 'DEFAULT';
 let currentTotal = 0;
