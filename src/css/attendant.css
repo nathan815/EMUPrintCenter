@@ -61,6 +61,10 @@
 	width: 500px;
     margin: 0 0 15px;
 }
+.item-table-container .item-total {
+	padding-top: 10px;
+	font-size: 115%;
+}
 table.item-table th {
 	text-align: left;
 	font-size: 14px;
@@ -85,10 +89,6 @@ table.item-table input.qty {
 table.item-table .delete {
 	color: #555;
 	cursor: pointer;
-}
-table.item-table .total {
-	padding-top: 10px;
-	font-size: 115%;
 }
 
 .payment-box {

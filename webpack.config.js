@@ -1,7 +1,9 @@
+const webpack = require('webpack');
 const path = require('path');
 const WebpackNotifierPlugin = require('webpack-notifier');
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
+const pkg = require('./package.json');
 
 function resolve (dir) {
   return path.join(__dirname, '..', dir)
@@ -11,8 +13,9 @@ module.exports = {
     devtool: 'cheap-eval-source-map',
     entry: {
         background: './src/js/background.js',
-        attendant: './src/js/attendant.js',
-        customer: './src/js/customer.js'
+        attendant: './src/js/attendant/index.js',
+        customer: './src/js/customer/index.js',
+        vendor: Object.keys(pkg.dependencies)
     },
     output: {
         filename: '[name].js',
@@ -56,6 +59,7 @@ module.exports = {
         ]
     },
     plugins: [
+        new webpack.optimize.CommonsChunkPlugin({ name: 'vendor', filename: 'vendor.bundle.js' }),
         new WebpackNotifierPlugin(),
         new CleanWebpackPlugin(['dist']),
         new CopyWebpackPlugin([

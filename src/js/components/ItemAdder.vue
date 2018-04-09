@@ -1,8 +1,8 @@
 <script>
 import firebase from '../firebase';
+const db = firebase.database();
 export default {
-    template: '#item-adder',
-    data: function() {
+    data() {
         return {
             isFormVisible: false,
             selectedType: null,
@@ -13,30 +13,27 @@ export default {
             qty: null
         }
     },
-    mounted: function() {
-        this.fetchItemTypes();
-    },
     props: ['newItem', 'deleteItem'],
     computed: {
-        isPoster: function() {
+        isPoster() {
             if(!this.selectedType) return;
             return this.selectedType.value === 'mattePoster' || this.selectedType.value === 'glossyPoster';
         }
     },
     firebase: {
-        itemTypes: firebase.database().ref('itemTypes')
+        itemTypes: db.ref('itemTypes')
     },
     methods: {
-        toggleForm: function() {
+        toggleForm() {
             this.isFormVisible = !this.isFormVisible;
         },
-        clearForm: function() {
+        clearForm() {
             this.selectedType = null;
             this.posterLength = null;
             this.posterWidth = null;
             this.qty = null;
         },
-        addItemSubmit: function() {
+        addItemSubmit() {
             if(!this.selectedType) {
                 alert('Choose an item type.')
                 return;
@@ -69,13 +66,8 @@ export default {
             this.newItem(item);
             this.clearForm();
         },
-        fetchItemTypes: function() {
-            // firebase.database().ref('itemTypes').once('value').then((snapshot) => {
-            //     this.itemTypes = snapshot.val();
-            // });
-        },
-        applyPreset: function(e) {
-            let size = e.target.value;
+        applyPreset(event) {
+            let size = event.target.value;
             if(!size) return;
             size = size.split('x');
             this.posterLength = size[0];
@@ -87,7 +79,7 @@ export default {
 <template>
     <div class="item-adder">
         <button type="submit" class="btn btn-light" v-on:click="toggleForm()" v-if="!isFormVisible">
-            <i class="fas fa-plus"></i>  Add Item
+            <i class="fas fa-plus"></i> Add Item
         </button>
 
         <form class="styled" v-on:submit.prevent="addItemSubmit" v-if="isFormVisible">

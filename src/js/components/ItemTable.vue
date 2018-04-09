@@ -9,7 +9,7 @@ export default {
         showPlaceholder: Boolean,
     },
     computed: {
-        parsedItems: function() {
+        parsedItems() {
             let items = this.items;
 
             if(this.itemsEmpty && this.showPlaceholder === true)
@@ -29,12 +29,12 @@ export default {
             }
             return parsedItems;
         },
-        itemsEmpty: function() {
+        itemsEmpty() {
             if(!this.items)
                 return true;
             return Object.keys(this.items).length === 0;
         },
-        total: function() {
+        total() {
             return this.calculateTotal(this.items);
         }
     }
@@ -64,7 +64,7 @@ export default {
                 </td>
             </tr>
         </table>
-        <footer v-if="showTotalRow && total > 0">
+        <footer v-if="showTotalRow && total > 0" class="item-total">
             Total: <b>${{ total.toFixed(2) }}</b>
         </footer>
     </div>

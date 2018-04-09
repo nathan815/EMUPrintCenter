@@ -39,7 +39,7 @@
                 </tr>
             </table>
             <footer v-cloak>
-                <span v-if="total">Total: <b>${{ total.toFixed(2) }}</b></span>
+                <span v-if="currentOrder.items">Total: <b>${{ total.toFixed(2) }}</b></span>
                 <span v-else class="waiting-order">Waiting for order...</span>
                 <div v-if="isSplitPayment" class="split-payment">
                     Interdepartmental Form: <span class="text-red">-${{ currentOrder.splitPayment.interdepartmentalAmount }}</span>
@@ -62,6 +62,7 @@
         </div>
     </div>
     
+    <script src="vendor.bundle.js"></script>
     <script src="customer.js"></script>
 </body>
 </html>

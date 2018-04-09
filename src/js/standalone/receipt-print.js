@@ -1,5 +1,7 @@
+let print = true;
 if(!window.printData) {
     alert('No order data received. Make sure to click the "Print Receipt" button directly from the interface.');
+    print = false;
 }
 
 let currentOrder = window.printData.currentOrder;
@@ -23,7 +25,8 @@ window.onload = function() {
     window.document.getElementById('date').innerHTML = 'Order Processed ' + date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
     window.document.getElementById('paid-with').innerHTML = paidWith;
 
-    window.print();
+    if(print)
+        window.print();
     
     setTimeout(function() {
         window.close();
