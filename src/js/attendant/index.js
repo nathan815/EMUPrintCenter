@@ -10,6 +10,8 @@ import ItemAdder from '../components/ItemAdder';
 import Attendant from './Attendant';
 import SplitPaymentPanel from './SplitPaymentPanel';
 
+Vue.config.devtools = true;
+Vue.config.debug = true;
 Vue.mixin(mixins);
 
 // Initialize Components

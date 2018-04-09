@@ -9,8 +9,7 @@ function resolve (dir) {
   return path.join(__dirname, '..', dir)
 }
 
-module.exports = {
-    devtool: 'cheap-eval-source-map',
+const config = {
     entry: {
         background: './src/js/background.js',
         attendant: './src/js/attendant/index.js',
@@ -24,7 +23,7 @@ module.exports = {
     resolve: {
         extensions: ['.js', '.vue', '.json'],
         alias: {
-          'vue$': 'vue/dist/vue.esm.js',
+          //'vue$': 'vue/dist/vue.esm.js',
           '@': path.resolve(__dirname, 'dist')
         }
     },
@@ -33,15 +32,16 @@ module.exports = {
             {
                 test: /\.vue$/,
                 loader: 'vue-loader',
-                //options: vueLoaderConfig
             },
             {
                 test: /\.js$/,
                 loader: 'babel-loader',
                 include: path.resolve(__dirname, 'src/js')
-                //include: [resolve('src'), resolve('test'), resolve('node_modules/webpack-dev-server/client')]
             }
         ]
+    },
+    watchOptions: {
+        ignored: /node_modules/
     },
     plugins: [
         new webpack.optimize.CommonsChunkPlugin({ name: 'vendor', filename: 'vendor.bundle.js' }),
@@ -52,7 +52,24 @@ module.exports = {
             { from: 'assets', to: 'assets' },
             { from: 'src/css', to: 'css' },
             { from: 'src/html', to: './' },
-            { from: 'src/js/standalone', to: './' }
+            { from: 'src/js/standalone', to: './js' }
         ])
     ]
 }; 
+
+if(process.env.NODE_ENV === 'production') {
+    console.log('PRODUCTION');
+    config.plugins.push(
+        new webpack.optimize.UglifyJsPlugin({
+            compress: {
+                screw_ie8: true
+            }
+        })
+    );
+}
+else {
+    console.log('DEVELOPMENT');
+    config.devtool = 'cheap-module-eval-source-map';
+}
+
+module.exports = config;
