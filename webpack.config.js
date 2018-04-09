@@ -40,22 +40,7 @@ module.exports = {
                 loader: 'babel-loader',
                 include: path.resolve(__dirname, 'src/js')
                 //include: [resolve('src'), resolve('test'), resolve('node_modules/webpack-dev-server/client')]
-            },
-            {
-                test: /\.css$/,
-                loader: 'css-loader'
-            },
-            {
-                 test: /.(ttf|otf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
-                 use: [{
-                   loader: 'file-loader',
-                   options: {
-                     name: '[name].[ext]',
-                     outputPath: 'fonts/',    // where the fonts will go
-                     publicPath: '../'       // override the default path
-                   }
-                 }]
-            },
+            }
         ]
     },
     plugins: [
