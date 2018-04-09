@@ -13,6 +13,7 @@ const DEFAULT_CURRENT_ORDER = {
 };
 
 Vue.component('v-select', VueSelect.VueSelect);
+Vue.use(VueFire);
 
 Vue.mixin({
   methods: {
