@@ -2,14 +2,14 @@
 import ManageCurrentOrder from './ManageCurrentOrder';
 import ManageAllOrders from './ManageAllOrders';
 export default {
+    components: {
+        'manage-current-order': ManageCurrentOrder,
+        'manage-all-orders': ManageAllOrders
+    },
     data() {
         return {
             isSignedIn: true,
         }
-    },
-    components: {
-        'manage-current-order': ManageCurrentOrder,
-        'manage-all-orders': ManageAllOrders
     },
     methods: {
         signIn() {
@@ -36,6 +36,7 @@ export default {
     <div class="container">
 
         <div v-if="isSignedIn">
+            
             <manage-current-order></manage-current-order>
 
             <manage-all-orders></manage-all-orders>

@@ -8,16 +8,16 @@ import ItemAdder from '../components/ItemAdder';
 const db = firebase.database();
 
 export default {
-    data() {
-        return {
-            currentOrder: {}
-        }
-    },
     components: {
         'item-table': ItemTable,
         'item-adder': ItemAdder,
         'payment-method-selector': PaymentMethodSelector,
         'split-payment-panel': SplitPaymentPanel
+    },
+    data() {
+        return {
+            currentOrder: {}
+        };
     },
     firebase: {
         currentOrder: {
