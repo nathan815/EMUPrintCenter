@@ -2,8 +2,9 @@ const webpack = require('webpack');
 const path = require('path');
 const WebpackNotifierPlugin = require('webpack-notifier');
 const WebpackZipPlugin = require('webpack-zip-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin')
-const CleanWebpackPlugin = require('clean-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+const Crx = require('crx-webpack-plugin');
 const pkg = require('./package.json');
 
 function resolve (dir) {
@@ -19,7 +20,7 @@ const config = {
     },
     output: {
         filename: '[name].js',
-        path: path.resolve(__dirname, 'dist')
+        path: path.resolve(__dirname, 'build')
     },
     resolve: {
         extensions: ['.js', '.vue', '.json'],
@@ -53,7 +54,7 @@ const config = {
             filename: 'vendor.bundle.js' 
         }),
         new WebpackNotifierPlugin(),
-        new CleanWebpackPlugin(['dist']),
+        new CleanWebpackPlugin(['build', 'dist']),
         new CopyWebpackPlugin([
             { from: 'manifest.json', to: 'manifest.json' },
             { from: 'assets', to: 'assets' },
@@ -66,16 +67,22 @@ const config = {
 
 if(process.env.NODE_ENV === 'production') {
     console.log('PRODUCTION');
-    config.plugins.push(new webpack.optimize.UglifyJsPlugin({
+    /*config.plugins.push(new webpack.optimize.UglifyJsPlugin({
         compress: {
             screw_ie8: true
         }
-    }));
+    }));*/
     config.plugins.push(new WebpackZipPlugin({
-      frontShell: 'ls && pwd',
-      initialFile: 'dist',
-      endPath: './',
-      zipName: 'chrome-extension.zip'
+        frontShell: 'ls && pwd',
+        initialFile: 'build',
+        endPath: './dist',
+        zipName: 'printcenter.zip'
+    }));
+    config.plugins.push(new Crx({
+        keyFile: 'key.pem',
+        contentPath: './build',
+        outputPath: './dist',
+        name: 'printcenter'
     }));
 }
 else {
