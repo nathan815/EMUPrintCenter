@@ -1,3 +1,11 @@
+<script>
+import ItemTable from '../components/ItemTable';
+export default {
+    components: {
+        'item-table': ItemTable
+    }
+}
+</script>
 <template>
     <section class="section orders">
 

@@ -1,9 +1,15 @@
 <script>
+import ManageCurrentOrder from './ManageCurrentOrder';
+import ManageAllOrders from './ManageAllOrders';
 export default {
     data() {
         return {
             isSignedIn: true,
         }
+    },
+    components: {
+        'manage-current-order': ManageCurrentOrder,
+        'manage-all-orders': ManageAllOrders
     },
     methods: {
         signIn() {

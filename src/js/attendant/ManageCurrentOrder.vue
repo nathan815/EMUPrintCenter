@@ -2,6 +2,8 @@
 import firebase from '../firebase';
 import SplitPaymentPanel from './SplitPaymentPanel';
 import PaymentMethodSelector from './PaymentMethodSelector';
+import ItemTable from '../components/ItemTable';
+import ItemAdder from '../components/ItemAdder';
 
 const db = firebase.database();
 
@@ -12,6 +14,8 @@ export default {
         }
     },
     components: {
+        'item-table': ItemTable,
+        'item-adder': ItemAdder,
         'payment-method-selector': PaymentMethodSelector,
         'split-payment-panel': SplitPaymentPanel
     },
