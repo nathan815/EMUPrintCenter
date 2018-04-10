@@ -1,3 +1,41 @@
+.loading-screen {
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 110;
+	background: rgba(0,0,0,0.7);
+	text-align: center;
+	height: 100%;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #eee;
+}
+.loading-screen img {
+	width: 60px;
+}
+.loading-screen h4 {
+	font-weight: normal;
+	margin-left: 20px;
+}
+.disconnected {
+	background: #c1665c;
+	color: #fff;
+	padding: 25px;
+	border-radius: 4px;
+	position: fixed;
+	top: 20px;
+	left: 20px;
+	z-index: 110;
+	border: 1px solid #fff;
+	box-shadow: 0 0 5px #444;
+	font-size: 18px;
+	text-align: center;
+}
+.disconnected p {
+	margin: 0 0 5px;
+}
 .sign-in-text {
     text-align: center;
     color: #333;
@@ -123,7 +161,6 @@ table.item-table .delete {
 form.styled input.control {
 	padding: 7px 12px;
 	font-size: 1em;
-	width: 110px;
 }
 .split-payment form.styled input.control {
 	width: 100px!important;
@@ -138,11 +175,14 @@ form.styled input.control {
 }
 .item-adder .v-select {
     margin-bottom: 10px;
-    width: 498px;
+    width: 65%;
 }
 .item-adder select.preset-size {
 	margin-left: 10px;
-	width: 190px;
+	width: 24%;
+}
+.item-adder form.styled input {
+	width: 15%;
 }
 .v-select .active a,
 .v-select.dropdown .highlight a,
@@ -165,4 +205,13 @@ form.styled input.control {
 	font-size: 16px;
 	font-style: italic;
 	margin: 10px 0;
+}
+
+footer.site-footer {
+	border-top: 1px dashed #ccc;
+    color: #555;
+    text-align: center;
+    margin: 80px 0 0;
+    padding: 20px 0;
+    font-size: 18px;
 }

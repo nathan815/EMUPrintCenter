@@ -1,4 +1,4 @@
-import { firebaseApp } from './firebase';
+import firebase from './firebase';
 
 const BASE_URL = 'https://ebill.emich.edu/C20704_ustores/';
 let currentState = 'DEFAULT';
@@ -18,11 +18,11 @@ function saveOrder() {
     currentOrder.datePaid = new Date().toISOString();
     currentOrder.isPaid = true;
     // save order to allOrders
-    let pushRef = firebaseApp.database().ref('allOrders').push();
+    let pushRef = firebase.database().ref('allOrders').push();
     pushRef.set(currentOrder);
     currentOrder.isSaved = true;
     // update currentOrder
-    firebaseApp.database().ref('currentOrder').set(currentOrder);
+    firebase.database().ref('currentOrder').set(currentOrder);
 }
 
 function handleRequest(request) {
@@ -101,7 +101,7 @@ function closePaymentWindow() {
     });
 }
 
-let currentOrderRef = firebaseApp.database().ref('currentOrder');
+let currentOrderRef = firebase.database().ref('currentOrder');
 currentOrderRef.on('value', function(snapshot) {
     let order = snapshot.val();
     currentOrder = order;
@@ -118,7 +118,7 @@ currentOrderRef.on('value', function(snapshot) {
         // clear out temporary properties from currentOrder
         currentOrder.resetState = null;
         currentOrder.isSaved = null;
-        firebaseApp.database().ref('currentOrder').set(currentOrder);
+        firebase.database().ref('currentOrder').set(currentOrder);
         // close payment window if it is open
         closePaymentWindow();
     }

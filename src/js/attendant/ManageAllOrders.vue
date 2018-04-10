@@ -1,17 +1,17 @@
 <script>
-import { firebaseApp } from '../firebase';
+import firebase from '../firebase';
 import ItemAdder from '../components/ItemAdder';
 import ItemTable from '../components/ItemTable';
-import Modal from '../components/Modal';
+import AddOrderModal from './AddOrderModal';
 
-const db = firebaseApp.database();
+const db = firebase.database();
 const ITEMS_PER_PAGE = 5;
 
 export default {
     components: {
         'item-adder': ItemAdder,
         'item-table': ItemTable,
-        'modal': Modal,
+        'add-order-modal': AddOrderModal
     },
     data() {
         return {
@@ -72,21 +72,7 @@ export default {
             <button class="btn pull-right" v-on:click="showAddOrderModal = true"><i class="fas fa-plus"></i> Add Email Order</button>
         </header>
 
-        <modal v-on:close="showAddOrderModal = false" :show="showAddOrderModal">
-            <span slot="header">Add Email Order</span>
-            <div slot="body">
-                <form class="styled" v-on:submit.prevent="">
-                    <h4>Contact Info</h4>
-                    <input type="text" placeholder="Name" />
-                    <input type="email" placeholder="Email address" />
-
-                    <item-adder></item-adder>
-                </form>
-            </div>
-            <span slot="buttons">
-                <button class="btn">Save</button>
-            </span>
-        </modal>
+        <add-order-modal :show="showAddOrderModal" v-on:close="showAddOrderModal = false" ></add-order-modal>
         
         <div class="order" v-for="order in parsedOrders">
             <header>

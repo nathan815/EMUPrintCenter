@@ -1,11 +1,13 @@
 <script>
-import { firebaseApp } from '../firebase';
+import firebase from '../firebase';
+import appConfig from '../app-config';
+
 import SplitPaymentPanel from './SplitPaymentPanel';
 import PaymentMethodSelector from './PaymentMethodSelector';
 import ItemTable from '../components/ItemTable';
 import ItemAdder from '../components/ItemAdder';
 
-const db = firebaseApp.database();
+const db = firebase.database();
 
 export default {
     components: {
@@ -74,7 +76,7 @@ export default {
             this.$firebaseRefs.currentOrder.child('isPaid').set(true);
         },
         printReceipt() {
-            let w = window.open('/receipt-print.html');
+            let w = window.open(appConfig.PRINT_URL);
             w.printData = {
                 currentOrder: this.currentOrder,
                 receiptHtml: document.getElementById('current-order-items').outerHTML

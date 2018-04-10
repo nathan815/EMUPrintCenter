@@ -1,5 +1,5 @@
 <script>
-import { firebaseApp, firebase } from '../firebase';
+import firebase from '../firebase';
 import ManageCurrentOrder from './ManageCurrentOrder';
 import ManageAllOrders from './ManageAllOrders';
 
@@ -11,20 +11,15 @@ export default {
     data() {
         return {
             isSignedIn: false,
-            user: null
+            isConnectedInitial: false,
+            isConnected: false,
+            isLoading: true,
+            user: null,
         }
     },
     mounted() {
-        firebase.auth().onAuthStateChanged((user) => {
-          if (user) {
-            this.isSignedIn = true;
-            this.user = user;
-          } 
-          else {
-            this.isSignedIn = false;
-            this.user = null;
-          }
-        });
+        this.authListener();
+        this.firebaseLostConnectionHandler();
     },
     methods: {
         signIn() {
@@ -41,20 +36,59 @@ export default {
               var errorMessage = error.message;
               var email = error.email;
               var credential = error.credential;
-              console.log('error: ',errorCode,errorMessage,email,credential);
+              alert('error: '+errorCode+' '+errorMessage);
             });
         },
         signOut() {
-            firebase.auth().signOut().then(() => {
-                this.isSignedIn = false;
-            }).catch(function(error) {
-            });
+          if(!confirm('Sign out?'))
+            return;
+          firebase.auth().signOut().then(() => {
+            this.isSignedIn = false;
+          }).catch(function(error) {
+            alert(error);
+          });
+        },
+        authListener() {
+          firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+              this.isSignedIn = true;
+              this.user = user;
+            } 
+            else {
+              this.isSignedIn = false;
+              this.user = null;
+            }
+          });
+        },
+        firebaseLostConnectionHandler() {
+          firebase.database().ref('.info/connected').on('value', (connectedSnap) => {
+            if (connectedSnap.val() === true) {
+              console.log('connected')
+              this.isLoading = false;
+              this.isConnectedInitial = true;
+              this.isConnected = true;
+            } 
+            else {
+              if(!this.isConnectedInitial) {
+                this.isConnected = false;
+                console.log('disconnected!')
+              }
+            }
+          });
         }
     }
 }
 </script>
 <template>
-<div id="attendant">    
+<div id="attendant">   
+    <div class="loading-screen" v-if="isLoading">
+      <img src="assets/img/white-loading.gif" />
+      <h4>Loading...</h4>
+    </div> 
+    <div class="disconnected" v-if="isConnectedInitial && !isConnected">
+      <p><i class="fas fa-exclamation-circle"></i> <b>Internet Connection Lost</b></p>
+      <p>Trying to reconnect...</p>
+    </div>
     <div id="pos-checkout-toolbar" class="center">
         <div class="buttons left">
         </div>
@@ -70,9 +104,13 @@ export default {
 
         <div v-if="isSignedIn">
             
-            <manage-current-order></manage-current-order>
+            <manage-current-order v-on:loaded=""></manage-current-order>
 
             <manage-all-orders></manage-all-orders>
+
+            <footer class="site-footer">
+              Find an issue? Report it on the <a href="https://github.com/nathan815/EMUPrintCenter/issues" target="_blank">issue tracker</a>.
+            </footer>
 
         </div>
         <div v-else class="sign-in-text">

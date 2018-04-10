@@ -6,7 +6,8 @@ export default {
         }
     },
     props: {
-        'show': Boolean
+        'show': Boolean,
+        'classes': Array
     },
     methods: {
     }
@@ -14,7 +15,7 @@ export default {
 </script>
 <template>
 <transition name="modal">
-    <div class="modal-mask" v-if="show" v-on:click="$emit('close')">
+    <div class="modal-mask" :class="classes" v-if="show" v-on:click="$emit('close')">
 
       <div class="modal-wrapper">
         <div class="modal-container" @click.stop>
@@ -94,10 +95,15 @@ export default {
 }
 .modal-header .close {
     position: absolute;
-    top: 0;
-    right: 0;
+    top: 10px;
+    right: 10px;
     cursor: pointer;
-    padding: 10px;
+    padding: 5px;
+    text-align: center;
+    color: #222;
+}
+.modal-header .close:hover {
+  color: #555;
 }
 
 .modal-body {

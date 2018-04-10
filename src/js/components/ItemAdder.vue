@@ -1,6 +1,6 @@
 <script>
-import { firebaseApp } from '../firebase';
-const db = firebaseApp.database();
+import firebase from '../firebase';
+const db = firebase.database();
 export default {
     data() {
         return {

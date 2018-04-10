@@ -1,5 +1,5 @@
 <script>
-import appConfig from '../appConfig';
+import appConfig from '../app-config';
 import ItemTable from '../components/ItemTable';
 
 export default {
