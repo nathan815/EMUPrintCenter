@@ -14,8 +14,7 @@ function changeState(s) {
     });
 }
 
-function orderComplete() {
-    changeState('COMPLETE')
+function saveOrder() {
     currentOrder.datePaid = new Date().toISOString();
     currentOrder.isPaid = true;
     // save order to allOrders
@@ -49,7 +48,8 @@ function handleRequest(request) {
             returnData = { state: currentState };
         break;
         case 'paymentComplete':
-            orderComplete();
+            changeState('COMPLETE');
+            saveOrder();
         break;
         case 'cancelPayment':
             changeState('DEFAULT');
@@ -107,8 +107,10 @@ currentOrderRef.on('value', function(snapshot) {
     currentOrder = order;
     currentTotal = calculateTotal(currentOrder.items);
 
-    if(order.isPaid && !order.isSaved) {
-        orderComplete();
+    if(order.isPaid) {
+        changeState('COMPLETE');
+        if(!order.isSaved)
+            saveOrder();
     }
 
     if(order.resetState) {

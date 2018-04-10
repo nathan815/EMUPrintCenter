@@ -1,6 +1,7 @@
 const webpack = require('webpack');
 const path = require('path');
 const WebpackNotifierPlugin = require('webpack-notifier');
+const WebpackZipPlugin = require('webpack-zip-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
 const pkg = require('./package.json');
@@ -23,7 +24,7 @@ const config = {
     resolve: {
         extensions: ['.js', '.vue', '.json'],
         alias: {
-          //'vue$': 'vue/dist/vue.esm.js',
+          'vue$': 'vue/dist/vue.runtime.esm.js',
           '@': path.resolve(__dirname, 'dist')
         }
     },
@@ -44,7 +45,13 @@ const config = {
         ignored: /node_modules/
     },
     plugins: [
-        new webpack.optimize.CommonsChunkPlugin({ name: 'vendor', filename: 'vendor.bundle.js' }),
+        new webpack.DefinePlugin({ 
+            'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV) 
+        }),
+        new webpack.optimize.CommonsChunkPlugin({ 
+            name: 'vendor', 
+            filename: 'vendor.bundle.js' 
+        }),
         new WebpackNotifierPlugin(),
         new CleanWebpackPlugin(['dist']),
         new CopyWebpackPlugin([
@@ -52,24 +59,28 @@ const config = {
             { from: 'assets', to: 'assets' },
             { from: 'src/css', to: 'css' },
             { from: 'src/html', to: './' },
-            { from: 'src/js/standalone', to: './js' }
+            { from: 'src/js/standalone', to: './' }
         ])
     ]
 }; 
 
 if(process.env.NODE_ENV === 'production') {
     console.log('PRODUCTION');
-    config.plugins.push(
-        new webpack.optimize.UglifyJsPlugin({
-            compress: {
-                screw_ie8: true
-            }
-        })
-    );
+    config.plugins.push(new webpack.optimize.UglifyJsPlugin({
+        compress: {
+            screw_ie8: true
+        }
+    }));
+    config.plugins.push(new WebpackZipPlugin({
+      frontShell: 'ls && pwd',
+      initialFile: 'dist',
+      endPath: './',
+      zipName: 'chrome-extension.zip'
+    }));
 }
 else {
     console.log('DEVELOPMENT');
-    config.devtool = 'cheap-module-eval-source-map';
+    config.devtool = '#source-map';
 }
 
 module.exports = config;

@@ -1,5 +1,6 @@
 <script>
 import firebase from '../firebase';
+const db = firebase.database();
 
 export default {
     data() {
@@ -11,7 +12,7 @@ export default {
     firebase: {
         currentOrder: {
             asObject: true,
-            source: firebase.database().ref('currentOrder'),
+            source: db.ref('currentOrder'),
             cancelCallback: function(err) {
                 console.log('Firebase error: ',err);
             },
