@@ -141,7 +141,7 @@ export default {
             </div>
         </header>
 
-        <item-table :items="currentOrder.items" :show-total-row="true" 
+        <item-table :items="currentOrder.items" :show-total-row="true" :show-no-items-message="true"
                     :delete-item="deleteItemCurrentOrder" :show-placeholder="false"
                     :editable="!currentOrder.isReadyToPay && !currentOrder.isPaid"
                     :update-item="updateItemCurrentOrder" id="current-order-items">

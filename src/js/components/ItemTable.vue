@@ -2,20 +2,23 @@
 export default {
     props: {
         items: Object,
-        showTotalRow: { type: Boolean, default: true },
+        showTotalRow: { type: Boolean, default: false },
         editable: { type: Boolean, default: false },
         updateItem: Function,
         deleteItem: Function,
         showPlaceholder: Boolean,
+        showNoItemsMessage: { type: Boolean, default: false }
     },
     computed: {
         parsedItems() {
             let items = this.items;
-
+            if(!items)
+                items = {};
             if(this.itemsEmpty && this.showPlaceholder === true)
                 items[0] = {name: '...', cost: 0, qty: 0 };
             else if(this.itemsEmpty)
                 return {};
+            console.log(items);
 
             let parsedItems = {};
             for(let key in items) {
@@ -42,7 +45,7 @@ export default {
 </script>
 <template>
     <div class="item-table-container">
-        <p v-if="itemsEmpty">No items in order yet.</p>
+        <p v-if="itemsEmpty && showNoItemsMessage">No items in order yet.</p>
         <table v-else class="item-table">
             <tr>
                 <th class="product">Product</th>
@@ -64,7 +67,7 @@ export default {
                 </td>
             </tr>
         </table>
-        <footer v-if="showTotalRow && total > 0" class="item-total">
+        <footer v-if="showTotalRow && items" class="item-total">
             Total: <b>${{ total.toFixed(2) }}</b>
         </footer>
     </div>

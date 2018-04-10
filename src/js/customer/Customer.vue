@@ -1,7 +1,11 @@
 <script>
 import appConfig from '../appConfig';
+import ItemTable from '../components/ItemTable';
 
 export default {
+    components: {
+        'item-table': ItemTable
+    },
     data() {
         return {
             currentState: 'BEGIN',
@@ -22,30 +26,6 @@ export default {
             return this.currentOrder.isSplitPayment
                 && this.currentOrder.splitPayment.interdepartmentalAmount > 0
                 && this.currentOrder.splitPayment.cardAmount > 0;
-        },
-        parsedItems: function() {
-            let items = this.currentOrder.items;
-            if(this.itemsEmpty) {
-                items = {};
-                items[0] = {name: '...', cost: 0, qty: 0 };
-            }
-
-            let parsedItems = {};
-            for(let key in items) {
-                let item = items[key];
-                parsedItems[key] = {
-                    name: item.name,
-                    cost: item.cost ? '$' + this.moneyFormat(item.cost) : '...',
-                    qty: item.qty ? item.qty : '...',
-                    total: item.cost ? '$' + this.moneyFormat(item.cost*item.qty) : '...'
-                };
-            }
-            return parsedItems;
-        },
-        itemsEmpty: function() {
-            if(!this.currentOrder.items)
-                return true;
-            return Object.keys(this.currentOrder.items).length === 0;
         },
     },
     methods: {
@@ -143,20 +123,9 @@ export default {
                 <p v-else>Welcome to the Print Center!</p>
             </div>
             <div id="receipt">
-                <table>
-                    <tr>
-                        <th class="product">Product</th>
-                        <th class="right">Cost</th>
-                        <th class="right">Qty</th>
-                        <th class="right">Total</th>
-                    </tr>
-                    <tr v-for="(item,key) in parsedItems" :key="key">
-                        <td class="product">{{ item.name }}</td>
-                        <td class="right">{{ item.cost }}</td>
-                        <td class="right">{{ item.qty }}</td>
-                        <td class="right">{{ item.total }}</td>
-                    </tr>
-                </table>
+                <item-table :items="currentOrder.items" :show-placeholder="true"
+                            :editable="false">
+                </item-table>
                 <footer>
                     <span v-if="currentOrder.items">Total: <b>${{ total.toFixed(2) }}</b></span>
                     <span v-else class="waiting-order">Waiting for order...</span>
