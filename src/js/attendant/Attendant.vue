@@ -15,7 +15,7 @@ export default {
             isConnected: false,
             isLoading: true,
             user: null,
-        }
+        };
     },
     mounted() {
         this.authListener();
@@ -61,18 +61,22 @@ export default {
           });
         },
         firebaseLostConnectionHandler() {
+
+          let initialConnTimer = setTimeout(() => {
+            this.isLoading = false;
+            this.isConnectedInitial = true;
+            this.isConnected = false;
+          }, 4000);
+
           firebase.database().ref('.info/connected').on('value', (connectedSnap) => {
-            if (connectedSnap.val() === true) {
-              console.log('connected')
+            if(connectedSnap.val() === true) {
+              clearTimeout(initialConnTimer);
               this.isLoading = false;
               this.isConnectedInitial = true;
               this.isConnected = true;
             } 
-            else {
-              if(!this.isConnectedInitial) {
-                this.isConnected = false;
-                console.log('disconnected!')
-              }
+            else if(this.isConnectedInitial) {
+              this.isConnected = false;
             }
           });
         }
@@ -81,14 +85,16 @@ export default {
 </script>
 <template>
 <div id="attendant">   
+
     <div class="loading-screen" v-if="isLoading">
       <img src="assets/img/white-loading.gif" />
       <h4>Loading...</h4>
-    </div> 
+    </div>
     <div class="disconnected" v-if="isConnectedInitial && !isConnected">
       <p><i class="fas fa-exclamation-circle"></i> <b>Internet Connection Lost</b></p>
       <p>Trying to reconnect...</p>
     </div>
+
     <div id="pos-checkout-toolbar" class="center">
         <div class="buttons left">
         </div>
@@ -113,7 +119,7 @@ export default {
             </footer>
 
         </div>
-        <div v-else class="sign-in-text">
+        <div v-else-if="isConnectedInitial" class="sign-in-text">
             <p class="text-large">Sign in to access the print center attendant interface.</p>
             <button class="btn btn-lg" v-on:click="signIn">Sign in with Google</button>
         </div>
