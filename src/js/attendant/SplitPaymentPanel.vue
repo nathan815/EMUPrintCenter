@@ -50,6 +50,9 @@ export default {
         </div>
 
         <div v-if="!currentOrder.isCard" class="split-payment payment-box">
+            <u>Split Payment Method</u>
+            <br>
+            <br>
             <form class="styled" v-on:submit.prevent="submit">
                 <div class="input-group">
                     <label>Amount covered by interdepartmental transfer form:</label> <br>
@@ -62,8 +65,6 @@ export default {
                 </div>
                
                 <button class="btn" type="submit">Submit</button>
-                <br>
-                <small><i>Clicking submit will allow the customer to enter their card info and proceed through checkout like normal.</i></small>
             </form>
         </div>
 

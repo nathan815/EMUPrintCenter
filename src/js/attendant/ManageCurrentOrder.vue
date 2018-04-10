@@ -1,11 +1,11 @@
 <script>
-import firebase from '../firebase';
+import { firebaseApp } from '../firebase';
 import SplitPaymentPanel from './SplitPaymentPanel';
 import PaymentMethodSelector from './PaymentMethodSelector';
 import ItemTable from '../components/ItemTable';
 import ItemAdder from '../components/ItemAdder';
 
-const db = firebase.database();
+const db = firebaseApp.database();
 
 export default {
     components: {

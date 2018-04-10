@@ -1,4 +1,8 @@
-import Firebase from 'firebase';
+import firebase from 'firebase';
 import firebaseConfig from './firebase-config';
-let firebase = Firebase.initializeApp(firebaseConfig);
-export default firebase;
+let firebaseApp = firebase.initializeApp(firebaseConfig);
+
+export {
+    firebaseApp,
+    firebase
+};

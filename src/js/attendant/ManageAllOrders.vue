@@ -1,10 +1,10 @@
 <script>
-import firebase from '../firebase';
+import { firebaseApp } from '../firebase';
 import ItemAdder from '../components/ItemAdder';
 import ItemTable from '../components/ItemTable';
 import Modal from '../components/Modal';
 
-const db = firebase.database();
+const db = firebaseApp.database();
 const ITEMS_PER_PAGE = 5;
 
 export default {
@@ -29,9 +29,16 @@ export default {
                 return [];
             orders.reverse();
             return orders.map( (order) => {
-                const formattedDate = this.parseDate(order.datePaid);
+                order.formattedDate = this.parseDate(order.datePaid);
                 order.id = order['.key'].substring(3,10).toUpperCase();
-                order.paidText = order.isPaid ? 'Paid ' + formattedDate : 'Hasn\'t Paid';
+                if(order.isSplitPayment)
+                    order.paymentMethod = 'Card + Inter. Transfer Form';
+                else if(order.isCard)
+                    order.paymentMethod = 'Card';
+                else
+                    order.paymentMethod = 'Inter. Transfer Form';
+
+                order.paidText = order.isPaid ? 'Paid with ' + order.paymentMethod : 'Hasn\'t Paid';
                 return order;
             });
         }
@@ -42,6 +49,9 @@ export default {
             return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
         },
         beginPayment(order) {
+            alert(order['.key'])
+        },
+        printReceipt(order) {
             alert(order['.key'])
         }
     }
@@ -80,11 +90,17 @@ export default {
         
         <div class="order" v-for="order in parsedOrders">
             <header>
-                <h3>Order: {{ order.id }}</h3>
+                <h3>
+                    Order: {{ order.id }} &nbsp; 
+                    <a href="#" class="print" v-if="order.isPaid" v-on:click.prevent="printReceipt(order)">
+                        <i class="fas fa-print"></i> Print
+                    </a>
+                </h3>
                 <div class="header-details">
                     <span class="paid" :class="{'not':!order.isPaid}">{{ order.paidText }}</span> 
                     <br>
                     <a href="#" v-if="!order.isPaid" v-on:click.prevent="beginPayment(order)"><i class="fas fa-arrow-up"></i> Move to Customer Screen</a>
+                    <span v-else>on {{ order.formattedDate }}</span>
                 </div>
             </header>
             <div class="details">

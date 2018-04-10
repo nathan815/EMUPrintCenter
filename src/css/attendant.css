@@ -45,6 +45,10 @@
 	height: 40px;
 	position: relative;
 }
+.order header a.print {
+	font-size: 65%;
+	font-weight: normal;
+}
 .order header .buttons {
 	margin-left: 8px;
 }

@@ -113,11 +113,14 @@ h1, h2, h3, h4, h5, h6 {
 #pos-checkout-toolbar .buttons {
     padding: 14px;
     line-height: 1;
+    font-size: 15px;
+    font-weight: normal;
 }
 #pos-checkout-toolbar button {
     padding: 10px 17px;
     border: 0;
     font-size: 16px;
+    margin-left: 10px;
 }
 form.styled select {
     background: none;
