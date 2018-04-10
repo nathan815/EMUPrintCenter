@@ -56,7 +56,7 @@ export default {
             });
         },
         printReceipt: function() {
-            let w = window.open(PRINT_URL);
+            let w = window.open(appConfig.PRINT_URL);
             w.printData = {
                 currentOrder: this.currentOrder,
                 receiptHtml: document.getElementById('receipt').innerHTML
