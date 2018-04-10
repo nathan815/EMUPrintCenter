@@ -1,19 +1,26 @@
 <script>
 import firebase from '../firebase';
+import ItemAdder from '../components/ItemAdder';
 import ItemTable from '../components/ItemTable';
+import Modal from '../components/Modal';
+
 const db = firebase.database();
 const ITEMS_PER_PAGE = 5;
+
 export default {
     components: {
-        'item-table': ItemTable
+        'item-adder': ItemAdder,
+        'item-table': ItemTable,
+        'modal': Modal,
     },
     data() {
         return {
-            selectedFilter: 'all'
+            selectedFilter: 'all',
+            showAddOrderModal: false
         };
     },
     firebase: {
-        allOrders: db.ref('allOrders').startAt(this.lastOrderId).limitToLast(ITEMS_PER_PAGE)
+        allOrders: db.ref('allOrders').limitToLast(ITEMS_PER_PAGE)
     },
     computed: {
         parsedOrders() {
@@ -23,7 +30,7 @@ export default {
             orders.reverse();
             return orders.map( (order) => {
                 const formattedDate = this.parseDate(order.datePaid);
-                order.id = order['.key'].substring(1,8);
+                order.id = order['.key'].substring(3,10).toUpperCase();
                 order.paidText = order.isPaid ? 'Paid ' + formattedDate : 'Hasn\'t Paid';
                 return order;
             });
@@ -52,12 +59,28 @@ export default {
                     <option value="paid">Paid</option>
                 </select>
             </h2>
-            <button class="btn pull-right"><i class="fas fa-plus"></i> Add Email Order</button>
+            <button class="btn pull-right" v-on:click="showAddOrderModal = true"><i class="fas fa-plus"></i> Add Email Order</button>
         </header>
+
+        <modal v-on:close="showAddOrderModal = false" :show="showAddOrderModal">
+            <span slot="header">Add Email Order</span>
+            <div slot="body">
+                <form class="styled" v-on:submit.prevent="">
+                    <h4>Contact Info</h4>
+                    <input type="text" placeholder="Name" />
+                    <input type="email" placeholder="Email address" />
+
+                    <item-adder></item-adder>
+                </form>
+            </div>
+            <span slot="buttons">
+                <button class="btn">Save</button>
+            </span>
+        </modal>
         
         <div class="order" v-for="order in parsedOrders">
             <header>
-                <h3>Order {{ order.id }}</h3>
+                <h3>Order: {{ order.id }}</h3>
                 <div class="header-details">
                     <span class="paid" :class="{'not':!order.isPaid}">{{ order.paidText }}</span> 
                     <br>

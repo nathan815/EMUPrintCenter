@@ -11,14 +11,11 @@ export default {
     },
     computed: {
         parsedItems() {
-            let items = this.items;
-            if(!items)
-                items = {};
+            let items = this.items ? this.items : {};
             if(this.itemsEmpty && this.showPlaceholder === true)
                 items[0] = {name: '...', cost: 0, qty: 0 };
             else if(this.itemsEmpty)
                 return {};
-            console.log(items);
 
             let parsedItems = {};
             for(let key in items) {
