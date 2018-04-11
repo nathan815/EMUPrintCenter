@@ -13,7 +13,10 @@ export default {
             qty: null
         }
     },
-    props: ['newItem', 'deleteItem'],
+    props: {
+        newItem: Function, 
+        presetText: { type: String, default: 'Preset' }
+    },
     computed: {
         isPoster() {
             if(!this.selectedType) return;
@@ -92,7 +95,7 @@ export default {
                 <input required type="number" placeholder="Length (in)" min="1" class="control" v-model="posterLength" /> &times;
                 <input required type="number" placeholder="Width (in)" min="1" max="41" class="control" v-model="posterWidth" />
                 <select v-on:change="applyPreset" class="preset-size">
-                    <option value="null">Or, select a preset...</option>
+                    <option value="null">{{ presetText }}</option>
                     <option v-for="size in presetSizes" :value="size.l+'x'+size.w">{{ size.l }} x {{ size.w }}</option>
                 </select>
                 <br>

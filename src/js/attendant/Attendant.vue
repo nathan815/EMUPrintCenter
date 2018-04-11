@@ -18,7 +18,7 @@ export default {
         };
     },
     mounted() {
-        this.authListener();
+        this.firebaseAuthStateListener();
         this.firebaseLostConnectionHandler();
     },
     methods: {
@@ -26,17 +26,11 @@ export default {
             let provider = new firebase.auth.GoogleAuthProvider();
             provider.addScope('https://www.googleapis.com/auth/userinfo.email');
             firebase.auth().signInWithPopup(provider).then((result) => {
-              // This gives you a Google Access Token. You can use it to access the Google API.
-              var token = result.credential.accessToken;
-              var user = result.user;
+              let token = result.credential.accessToken;
               this.isSignedIn = true;
+              this.user = result.user;
             }).catch(function(error) {
-              // Handle Errors here.
-              var errorCode = error.code;
-              var errorMessage = error.message;
-              var email = error.email;
-              var credential = error.credential;
-              alert('error: '+errorCode+' '+errorMessage);
+              alert('Error ['+error.code+']: '+error.message);
             });
         },
         signOut() {
@@ -45,19 +39,13 @@ export default {
           firebase.auth().signOut().then(() => {
             this.isSignedIn = false;
           }).catch(function(error) {
-            alert(error);
+            alert('Error ['+error.code+']: '+error.message);
           });
         },
-        authListener() {
+        firebaseAuthStateListener() {
           firebase.auth().onAuthStateChanged((user) => {
-            if (user) {
-              this.isSignedIn = true;
-              this.user = user;
-            } 
-            else {
-              this.isSignedIn = false;
-              this.user = null;
-            }
+            this.user = user;
+            this.isSignedIn = user ? true : false;
           });
         },
         firebaseLostConnectionHandler() {
@@ -84,7 +72,7 @@ export default {
 }
 </script>
 <template>
-<div id="attendant">   
+<div id="attendant">
 
     <div class="loading-screen" v-if="isLoading">
       <img src="assets/img/white-loading.gif" />

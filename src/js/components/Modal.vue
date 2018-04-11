@@ -22,23 +22,22 @@ export default {
 
           <div class="modal-header">
             <slot name="header">
-              Hello world
+              Modal Title
             </slot>
-            <i class="fas fa-times close" v-on:click="$emit('close')"></i>
+            <i class="far fa-times-circle close" v-on:click="$emit('close')"></i>
           </div>
 
           <div class="modal-body">
             <slot name="body">
-              How you doin'?
+              Modal Body
             </slot>
           </div>
 
           <div class="modal-footer">
             <button class="btn btn-light" @click="$emit('close')">
-              Close
+              <slot name="close-btn">Close</slot>
             </button>
-            <slot name="buttons">
-            </slot>
+            <slot name="buttons"></slot>
           </div>
 
         </div>
@@ -60,6 +59,7 @@ export default {
   background-color: rgba(0, 0, 0, .5);
   display: table;
   transition: opacity .3s ease;
+  padding: 15px 0;
 }
 
 .modal-wrapper {
@@ -69,7 +69,9 @@ export default {
 
 .modal-container {
   width: 450px;
-  margin: 0px auto;
+  max-height: 100%;
+  overflow-y: scroll;
+  margin: 0 auto;
   padding: 0;
   background-color: #fff;
   border-radius: 3px;
@@ -85,7 +87,7 @@ export default {
 .modal-header {
     position: relative;
     padding: 15px 20px;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid #ddd;
     background: #f5f5f5;
     border-top-left-radius: 3px;
     border-top-right-radius: 3px;
@@ -95,12 +97,13 @@ export default {
 }
 .modal-header .close {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 13px;
+    right: 15px;
     cursor: pointer;
-    padding: 5px;
+    padding: 0;
     text-align: center;
-    color: #222;
+    color: #555;
+    font-size: 25px;
 }
 .modal-header .close:hover {
   color: #555;
@@ -113,19 +116,11 @@ export default {
 
 .modal-footer {
     border-top: 1px solid #ddd;
-    padding: 10px 20px;
+    background: #f5f5f5;
+    padding: 15px 20px;
     overflow: hidden;
     text-align: right;
 }
-
-/*
- * The following styles are auto-applied to elements with
- * transition="modal" when their visibility is toggled
- * by Vue.js.
- *
- * You can easily play with the modal transition by editing
- * these styles.
- */
 
 .modal-enter {
   opacity: 0;
@@ -135,9 +130,12 @@ export default {
   opacity: 0;
 }
 
-.modal-enter .modal-container,
+.modal-enter .modal-container {
+  -webkit-transform: scale(0.9);
+  transform: scale(0.9);
+}
 .modal-leave-active .modal-container {
-  -webkit-transform: scale(1.1);
-  transform: scale(1.1);
+  -webkit-transform: scale(0.8);
+  transform: scale(0.8);
 }
 </style>

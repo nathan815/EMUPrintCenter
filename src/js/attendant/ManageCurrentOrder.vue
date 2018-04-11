@@ -40,16 +40,14 @@ export default {
             delete order['.key'];
             this.$firebaseRefs.currentOrder.set(order);
         },
-        updateItemCurrentOrder(key) {
-            const item = this.currentOrder.items[key];
-            const itemCopy = {...item};
-            delete itemCopy['.key'];
-            this.$firebaseRefs.currentOrder.child('items').child(key).set(itemCopy);
+        updateItem(key, item) {
+            delete item['.key'];
+            this.$firebaseRefs.currentOrder.child('items').child(key).set(item);
         },
-        newItemCurrentOrder(item) {
+        newItem(item) {
             this.$firebaseRefs.currentOrder.child('items').push(item);
         },
-        deleteItemCurrentOrder(key) {
+        deleteItem(key) {
             this.$firebaseRefs.currentOrder.child('items').child(key).remove();
         },
         selectPaymentMethod(method) {
@@ -144,11 +142,12 @@ export default {
         </header>
 
         <item-table :items="currentOrder.items" :show-total-row="true" :show-no-items-message="true"
-                    :delete-item="deleteItemCurrentOrder" :show-placeholder="false"
+                    :delete-item="deleteItem" :show-placeholder="false"
                     :editable="!currentOrder.isReadyToPay && !currentOrder.isPaid"
-                    :update-item="updateItemCurrentOrder" id="current-order-items">
+                    :update-item="updateItem" id="current-order-items">
         </item-table>
-        <item-adder v-if="!currentOrder.isReadyToPay" :new-item="newItemCurrentOrder"></item-adder>
+
+        <item-adder v-if="!currentOrder.isReadyToPay" :new-item="newItem" preset-text="Or, select a preset..."></item-adder>
         
         <payment-method-selector v-on:selected="selectPaymentMethod" 
                                  v-if="currentOrder.isReadyToPay && !currentOrder.isPaid">

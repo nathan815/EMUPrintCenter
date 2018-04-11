@@ -37,6 +37,11 @@ export default {
         total() {
             return this.calculateTotal(this.items);
         }
+    },
+    methods: {
+        update(key) {
+            this.updateItem(key, this.items[key]);
+        }
     }
 }
 </script>
@@ -55,7 +60,7 @@ export default {
                 <td class="product">{{ item.name }}</td>
                 <td class="right">{{ item.cost }}</td>
                 <td v-if="editable" class="right">
-                    <input type="number" v-model="items[key].qty" v-on:change="updateItem(key)" class="qty" min="1" />
+                    <input type="number" v-model="items[key].qty" v-on:change="update(key)" class="qty" min="1" />
                 </td>
                 <td v-else class="right">{{ item.qty }}</td>
                 <td class="right">{{ item.total }}</td>
@@ -64,7 +69,7 @@ export default {
                 </td>
             </tr>
         </table>
-        <footer v-if="showTotalRow && items" class="item-total">
+        <footer v-if="showTotalRow && !itemsEmpty" class="item-total">
             Total: <b>${{ total.toFixed(2) }}</b>
         </footer>
     </div>
