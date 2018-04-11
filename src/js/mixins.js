@@ -14,10 +14,10 @@ export default {
             return Math.round(total * 100) / 100;
         },
         objectLength(obj) {
-            return Object.keys(myObj).length;
+            return Object.keys(obj).length;
         },
         isObjectEmpty(obj) {
-            return Object.keys(myObj).length === 0;
+            return Object.keys(obj).length === 0;
         }
     }
 }

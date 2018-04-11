@@ -1,4 +1,7 @@
 <script>
+import firebase from '../firebase';
+import OrderModel from '../models/Order';
+
 import Modal from '../components/Modal';
 import ItemAdder from '../components/ItemAdder';
 import ItemTable from '../components/ItemTable';
@@ -12,7 +15,10 @@ export default {
     data() {
         return {
             items: {},
-            currentKey: 0
+            currentKey: 0,
+            name: '',
+            email: '',
+            notes: ''
         }
     },
     props: {
@@ -29,7 +35,34 @@ export default {
         },
         deleteItem(key) {
             this.$delete(this.items, key);
-        } 
+        },
+        save() {
+            if(this.isObjectEmpty(this.items)) {
+                alert('Add at least one item to the order.');
+                return;
+            }
+            const items = this.items;
+            const orderRef = firebase.database().ref('allOrders').push({
+                ...OrderModel,
+                contact: {
+                    name: this.name ? this.name : null,
+                    email: this.email ? this.email : null
+                },
+                notes: this.notes ? this.notes : null
+            });
+            // push all items to the new firebase object with Push IDs
+            for(let key in items) {
+                orderRef.child('items').push(items[key]);
+            }
+            this.clear();
+            this.$emit('close');
+        },
+        clear() {
+            this.items = {};
+            this.name = '';
+            this.email = '';
+            this.notes = '';
+        }
     }
 }
 </script>
@@ -42,17 +75,17 @@ export default {
                         :editable="true" :show-placeholder="false">
             </item-table>
             <item-adder :new-item="newItem"></item-adder>
-            <form class="styled add-item" v-on:submit.prevent="" autocomplete="off">
+            <form v-on:submit.prevent="" class="styled add-item" ref="form" autocomplete="off">
                 <h4>Contact information</h4>
-                <input type="text" placeholder="Name" name="name" class="half-width" autocomplete="off"  />
-                <input type="email" placeholder="Email address" name="email" class="half-width" autocomplete="off"  />
+                <input type="text" placeholder="Name" name="name" class="half-width" v-model="name" />
+                <input type="email" placeholder="Email address" name="email" class="half-width" v-model="email" />
                 <h4>Notes</h4>
-                <textarea placeholder="Add notes or specific instructions (optional)" name="notes"></textarea>
+                <textarea placeholder="Add notes or specific instructions (optional)" name="notes" v-model="notes"></textarea>
             </form>
         </div>
         <span slot="close-btn">Cancel</span>
         <span slot="buttons">
-            <button class="btn">
+            <button class="btn" v-on:click="save()">
                 <i class="fas fa-check-circle"></i> Save Order
             </button>
         </span>

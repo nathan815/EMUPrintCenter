@@ -1,6 +1,7 @@
 <script>
 import firebase from '../firebase';
 import appConfig from '../app-config';
+import OrderModel from '../models/Order';
 
 import SplitPaymentPanel from './SplitPaymentPanel';
 import PaymentMethodSelector from './PaymentMethodSelector';
@@ -90,18 +91,8 @@ export default {
         clearScreen() {
             // reset currentOrder
             this.$firebaseRefs.currentOrder.set({
-                resetState: true,
-                items: [],
-                isReadyToPay: false,
-                isCard: false,
-                isInterdepartmental: false,
-                isSplitPayment: false,
-                splitPayment: {
-                    cardAmount: 0,
-                    interdepartmentalAmount: 0
-                },
-                isPaid: false,
-                datePaid: ''
+                ...OrderModel,
+                resetState: true
             });
         },
         cancelOrder() {

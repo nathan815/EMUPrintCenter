@@ -47,7 +47,7 @@ export default {
 </script>
 <template>
     <div class="item-table-container">
-        <p v-if="itemsEmpty && showNoItemsMessage">No items in order yet.</p>
+        <p v-if="itemsEmpty && showNoItemsMessage">No items in this order yet.</p>
         <table v-else class="item-table">
             <tr>
                 <th class="product">Product</th>
