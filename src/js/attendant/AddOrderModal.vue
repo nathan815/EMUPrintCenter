@@ -55,6 +55,7 @@ export default {
                 orderRef.child('items').push(items[key]);
             }
             this.clear();
+            this.$emit('added');
             this.$emit('close');
         },
         clear() {
