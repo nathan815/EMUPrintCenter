@@ -16,8 +16,8 @@ export default {
     isPaid: false,
     datePaid: '',
     contact: {
-        name: '',
-        email: ''
+        name: null,
+        email: null
     },
     notes: ''
 };

@@ -5,8 +5,8 @@ import ManageAllOrders from './ManageAllOrders';
 
 export default {
     components: {
-        'manage-current-order': ManageCurrentOrder,
-        'manage-all-orders': ManageAllOrders
+        'ManageCurrentOrder': ManageCurrentOrder,
+        'ManageAllOrders': ManageAllOrders
     },
     data() {
         return {
@@ -15,6 +15,7 @@ export default {
             isConnected: false,
             isLoading: true,
             user: null,
+            reloadOrders: false,
         };
     },
     mounted() {
@@ -98,9 +99,9 @@ export default {
 
         <div v-if="isSignedIn">
             
-            <manage-current-order v-on:loaded=""></manage-current-order>
+            <ManageCurrentOrder v-on:created="reloadOrders = true"></ManageCurrentOrder>
 
-            <manage-all-orders></manage-all-orders>
+            <ManageAllOrders :reload="reloadOrders" v-on:loaded="reloadOrders = false"></ManageAllOrders>
 
             <footer class="site-footer">
               Find an issue? Report it on the <a href="https://github.com/nathan815/EMUPrintCenter/issues" target="_blank">issue tracker</a>.

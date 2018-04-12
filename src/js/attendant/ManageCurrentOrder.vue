@@ -47,6 +47,7 @@ export default {
         },
         newItem(item) {
             this.$firebaseRefs.currentOrder.child('items').push(item);
+            this.$emit('created');
         },
         deleteItem(key) {
             this.$firebaseRefs.currentOrder.child('items').child(key).remove();

@@ -23,6 +23,14 @@ export default {
             moreOrdersToLoad: true
         };
     },
+    props: ['reload'],
+    watch: {
+        reload(reload) {
+            if(reload === true) {
+                this.reloadOrders();
+            }
+        }
+    },
     mounted() {
         this.loadOrders(false);
     },
@@ -59,6 +67,7 @@ export default {
         },
         loadedOrders(snapshot) {
             // changing to reverse chronological order (latest first)
+            console.log(JSON.stringify(snapshot.val()));
             let arrayOfKeys = Object.keys(snapshot.val())
             .sort()
             .reverse();
@@ -79,6 +88,7 @@ export default {
                 this.allOrders = results;
 
             this.previousLength = results.length;
+            this.$emit('loaded');
         },
         loadOrders(more = true, reset = false) {
             let query;
