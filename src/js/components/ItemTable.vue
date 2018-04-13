@@ -14,8 +14,10 @@ export default {
             let items = this.items ? this.items : {};
             if(this.itemsEmpty && this.showPlaceholder === true)
                 items[0] = {name: '...', cost: 0, qty: 0 };
-            else if(this.itemsEmpty)
+            else if(this.itemsEmpty) {
+                console.log('empty')
                 return {};
+            }
 
             let parsedItems = {};
             for(let key in items) {

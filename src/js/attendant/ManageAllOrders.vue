@@ -9,9 +9,7 @@ const ITEMS_TO_LOAD = 5;
 
 export default {
     components: {
-        'ItemAdder': ItemAdder,
-        'ItemTable': ItemTable,
-        'AddOrderModal': AddOrderModal
+        ItemAdder, ItemTable, AddOrderModal
     },
     data() {
         return {

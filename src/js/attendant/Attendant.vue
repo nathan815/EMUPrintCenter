@@ -5,8 +5,7 @@ import ManageAllOrders from './ManageAllOrders';
 
 export default {
     components: {
-        'ManageCurrentOrder': ManageCurrentOrder,
-        'ManageAllOrders': ManageAllOrders
+      ManageCurrentOrder, ManageAllOrders
     },
     data() {
         return {

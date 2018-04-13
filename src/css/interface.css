@@ -155,3 +155,25 @@ form.styled .input-group {
 form.styled label {
     font-size: 90%;
 }
+
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 110;
+    background: rgba(0,0,0,0.8);
+    text-align: center;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #eee;
+}
+.loading-screen img {
+    width: 60px;
+}
+.loading-screen h4 {
+    font-weight: normal;
+    margin-left: 20px;
+}

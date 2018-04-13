@@ -1,48 +1,90 @@
 <script>
 import appConfig from '../app-config';
+import firebase from '../firebase';
 import ItemTable from '../components/ItemTable';
+
+const db = firebase.database();
 
 export default {
     components: {
-        'item-table': ItemTable
+        ItemTable
     },
     data() {
         return {
             currentState: 'BEGIN',
-            currentOrder: {},
-            total: 0
+            total: 0,
+            isLoading: true,
+            isConnected: false,
+            currentOrder: {}
         };
     },
-    mounted: function() {
+    mounted() {
         this.getState();
-        this.getCurrentOrder();
         this.listenForMessages();
+        this.firebaseLostConnectionHandler();
     },
     computed: {
-        isOrderComplete: function() {
+        isOrderComplete() {
             return this.currentState === 'COMPLETE';
         },
-        isSplitPayment: function() {
+        isSplitPayment() {
             return this.currentOrder.isSplitPayment
                 && this.currentOrder.splitPayment.interdepartmentalAmount > 0
                 && this.currentOrder.splitPayment.cardAmount > 0;
         },
     },
+    firebase: {
+        currentOrder: {
+            asObject: true,
+            source: db.ref('currentOrder')
+        }
+    },
+    watch: {
+        currentOrder: {
+            deep: true,
+            handler(order) {
+                if(!order)
+                    return;
+                if(order.isPaid) {
+                    this.setState('COMPLETE');
+                    if(!order.isSaved)
+                        this.saveOrder();
+                }
+                if(order.resetState) {
+                    this.setState('DEFAULT');
+                    // clear out temporary properties from currentOrder
+                    this.$firebaseRefs.currentOrder.child('resetState').remove();
+                    this.$firebaseRefs.currentOrder.child('isSaved').remove();
+                    this.sendMessage({ 'action': 'closePaymentWindow' });
+                }
+            }
+        }
+    },
     methods: {
-        openPayWindow: function() {
+        openPayWindow() {
             this.sendMessage({ action: 'clearPaySiteSessionCookie' });
             this.setState('BEGIN', function() {
                 let payWindow = window.open(appConfig.PAY_URL);
             });
         },
-        printReceipt: function() {
+        printReceipt() {
             let w = window.open(appConfig.PRINT_URL);
             w.printData = {
                 currentOrder: this.currentOrder,
                 receiptHtml: document.getElementById('receipt').innerHTML
             };
         },
-        handleStateChange: function(state) {
+        saveOrder() {
+            const order = {...this.currentOrder};
+            order.datePaid = new Date().toISOString();
+            order.isPaid = true;
+            // save order to allOrders
+            let pushRef = db.ref('allOrders').push(order);
+            order.isSaved = true;
+            // update currentOrder
+            this.$firebaseRefs.currentOrder.set(order);
+        },
+        handleStateChange(state) {
             console.log('state changed: ',state);
             this.currentState = state;
             switch(state) {
@@ -56,33 +98,20 @@ export default {
                 break;
             };
         },
-        handleMessage: function(msg) {
+        handleMessage(msg) {
             switch(msg.action) {
                 case 'stateChanged':
                     this.handleStateChange(msg.state);
                 break;
-                case 'currentOrderChanged':
-                    this.total = msg.total;
-                    this.currentOrder = msg.order;
-                break;
-                case 'clearOrder':
-                    this.clearOrder();
-                break;
             }
         },
-        listenForMessages: function() {
+        listenForMessages() {
             chrome.runtime.onMessage.addListener((msg, sender, response) => {
                 console.log('message recieved: ', msg);
                 this.handleMessage(msg);
             });
         },
-        getCurrentOrder: function() {
-            chrome.runtime.sendMessage({ action: 'getCurrentOrder' }, (response) => {
-                this.total = response.total;
-                this.currentOrder = response.order;
-            });
-        },
-        getState: function(cb) {
+        getState(cb) {
             chrome.runtime.sendMessage({ action: 'currentState' }, (response) => {
                 this.currentState = response.state;
                 this.handleStateChange(response.state);
@@ -90,17 +119,24 @@ export default {
                 if(cb) cb(response.state);
             });
         },
-        setState: function(state, cb) {
+        setState(state, cb) {
             chrome.runtime.sendMessage({ setState: state }, (response) => {
                 this.currentState = state;
                 console.log('Set State = ' + state);
                 if(cb) cb();
             });
         },
-        sendMessage: function(data, cb) {
+        sendMessage(data, cb) {
             chrome.runtime.sendMessage(data, (response) => {
                 if(cb) cb();
             });
+        },
+        firebaseLostConnectionHandler() {
+          db.ref('.info/connected').on('value', (connectedSnap) => {
+            this.isConnected = connectedSnap.val();
+            if(connectedSnap.val() === true)
+              this.isLoading = false;
+          });
         }
     }
 }
@@ -110,6 +146,12 @@ export default {
     <div id="customer">
         <div id="pos-checkout-toolbar" class="center">
             EMU Print Center
+        </div>
+
+        <div class="loading-screen" v-if="isLoading || !isConnected">
+          <img src="assets/img/white-loading.gif" />
+          <h4 v-if="isLoading">Loading...</h4>
+          <h4 v-else-if="!isConnected">Connection lost, reconnecting...</h4>
         </div>
         
         <div class="container">
@@ -123,9 +165,9 @@ export default {
                 <p v-else>Welcome to the Print Center!</p>
             </div>
             <div id="receipt">
-                <item-table :items="currentOrder.items" :show-placeholder="true"
+                <ItemTable :items="currentOrder.items" :show-placeholder="true"
                             :editable="false">
-                </item-table>
+                </ItemTable>
                 <footer>
                     <span v-if="currentOrder.items">Total: <b>${{ total.toFixed(2) }}</b></span>
                     <span v-else class="waiting-order">Waiting for order...</span>

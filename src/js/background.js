@@ -14,24 +14,18 @@ function changeState(s) {
     });
 }
 
-function saveOrder() {
-    currentOrder.datePaid = new Date().toISOString();
-    currentOrder.isPaid = true;
-    // save order to allOrders
-    let pushRef = firebase.database().ref('allOrders').push();
-    pushRef.set(currentOrder);
-    currentOrder.isSaved = true;
-    // update currentOrder
-    firebase.database().ref('currentOrder').set(currentOrder);
+function currentOrderChanged(order) {
+    currentOrder = order;
+    currentTotal = calculateTotal(currentOrder.items);
 }
 
-function handleRequest(request) {
-    if(request.setState)
-        changeState(request.setState);
-    if(!request.action)
+function handleMessage(msg) {
+    if(msg.setState)
+        changeState(msg.setState);
+    if(!msg.action)
         return null;
     let returnData = {};
-    switch(request.action) {
+    switch(msg.action) {
         case 'getCost':
             let cost = currentTotal;
             if(currentOrder.isSplitPayment && currentOrder.splitPayment.interdepartmentalAmount > 0
@@ -41,11 +35,17 @@ function handleRequest(request) {
             }
             returnData = { cost: cost };
         break;
+        case 'currentOrderChanged':
+            currentOrderChanged(msg.data);
+        break;
         case 'getCurrentOrder':
             returnData = { order: currentOrder, total: currentTotal };
         break;
         case 'currentState':
             returnData = { state: currentState };
+        break;
+        case 'closePaymentWindow':
+            closePaymentWindow();
         break;
         case 'paymentComplete':
             changeState('COMPLETE');
@@ -101,35 +101,26 @@ function closePaymentWindow() {
     });
 }
 
-let currentOrderRef = firebase.database().ref('currentOrder');
-currentOrderRef.on('value', function(snapshot) {
-    let order = snapshot.val();
-    currentOrder = order;
-    currentTotal = calculateTotal(currentOrder.items);
+// let currentOrderRef = firebase.database().ref('currentOrder');
+// currentOrderRef.on('value', function(snapshot) {
+    
 
-    if(order.isPaid) {
-        changeState('COMPLETE');
-        if(!order.isSaved)
-            saveOrder();
+//     sendMessage({ 
+//         action: 'currentOrderChanged',
+//         order: order,
+//         total: currentTotal
+//     });
+// });
+
+firebase.database().ref('.info/connected').on('value', (connectedSnap) => {
+    if(connectedSnap.val() === true) {
+      console.log('firebase: connected')
+    } 
+    else {
+      console.log('firebase: not connected')
     }
-
-    if(order.resetState) {
-        changeState('DEFAULT');
-        // clear out temporary properties from currentOrder
-        currentOrder.resetState = null;
-        currentOrder.isSaved = null;
-        firebase.database().ref('currentOrder').set(currentOrder);
-        // close payment window if it is open
-        closePaymentWindow();
-    }
-
-    sendMessage({ 
-        action: 'currentOrderChanged',
-        order: order,
-        total: currentTotal
-    });
 });
 
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    sendResponse(handleRequest(request));
+chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
+    sendResponse(handleMessage(msg));
 });

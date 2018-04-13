@@ -12,10 +12,8 @@ const db = firebase.database();
 
 export default {
     components: {
-        'item-table': ItemTable,
-        'item-adder': ItemAdder,
-        'payment-method-selector': PaymentMethodSelector,
-        'split-payment-panel': SplitPaymentPanel
+        ItemTable, ItemAdder, 
+        PaymentMethodSelector, SplitPaymentPanel
     },
     data() {
         return {

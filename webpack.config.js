@@ -54,7 +54,7 @@ const config = {
             filename: 'vendor.bundle.js' 
         }),
         new WebpackNotifierPlugin(),
-        new CleanWebpackPlugin(['build', 'dist']),
+        new CleanWebpackPlugin(['build']),
         new CopyWebpackPlugin([
             { from: 'manifest.json', to: 'manifest.json' },
             { from: 'assets', to: 'assets' },
@@ -72,6 +72,7 @@ if(process.env.NODE_ENV === 'production') {
             screw_ie8: true
         }
     }));*/
+    config.plugins.push(new CleanWebpackPlugin(['dist']));
     config.plugins.push(new WebpackZipPlugin({
         frontShell: 'ls && pwd',
         initialFile: 'build',
@@ -79,7 +80,7 @@ if(process.env.NODE_ENV === 'production') {
         zipName: 'printcenter.zip'
     }));
     config.plugins.push(new Crx({
-        keyFile: 'key.pem',
+        keyFile: './key.pem',
         contentPath: './build',
         outputPath: './dist',
         name: 'printcenter'

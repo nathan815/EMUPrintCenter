@@ -8,9 +8,7 @@ import ItemTable from '../components/ItemTable';
 
 export default {
     components: {
-        'modal': Modal,
-        'item-table': ItemTable,
-        'item-adder': ItemAdder,
+        Modal, ItemTable, ItemAdder
     },
     data() {
         return {
@@ -68,7 +66,7 @@ export default {
 }
 </script>
 <template>
-    <modal v-on:close="$emit('close')" :show="show" class="add-order-modal">
+    <Modal v-on:close="$emit('close')" :show="show" class="add-order-modal">
         <b slot="header">Add Email Order</b>
         <div slot="body">
             <item-table :items="items" :show-total-row="true" :show-no-items-message="true"
@@ -90,5 +88,5 @@ export default {
                 <i class="fas fa-check-circle"></i> Save Order
             </button>
         </span>
-    </modal>
+    </Modal>
 </template>

@@ -82,7 +82,7 @@ export default {
 <template>
     <div class="item-adder">
         <button type="submit" class="btn btn-light" v-on:click="toggleForm()" v-if="!isFormVisible">
-            <i class="fas fa-plus"></i> Add Item
+            <i class="fas fa-plus-circle"></i> Add Item
         </button>
 
         <form class="styled" v-on:submit.prevent="addItemSubmit" v-if="isFormVisible">
@@ -107,7 +107,7 @@ export default {
 
             <div class="buttons">
                 <button type="submit" class="btn btn-light">
-                    <i class="fas fa-plus"></i>  Add Item
+                    <i class="fas fa-plus-circle"></i> Add Item
                 </button>
                 <small><a href="#" v-on:click.prevent="toggleForm()">Close</a></small>
             </div>
