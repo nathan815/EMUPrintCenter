@@ -135,7 +135,7 @@ export default {
   transform: scale(0.9);
 }
 .modal-leave-active .modal-container {
-  -webkit-transform: scale(0.8);
-  transform: scale(0.8);
+  -webkit-transform: scale(0.9);
+  transform: scale(0.9);
 }
 </style>

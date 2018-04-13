@@ -12,7 +12,6 @@ export default {
     data() {
         return {
             currentState: 'BEGIN',
-            total: 0,
             isLoading: true,
             isConnected: false,
             currentOrder: {}
@@ -32,6 +31,9 @@ export default {
                 && this.currentOrder.splitPayment.interdepartmentalAmount > 0
                 && this.currentOrder.splitPayment.cardAmount > 0;
         },
+        total() {
+            return this.calculateTotal(this.currentOrder.items);
+        }
     },
     firebase: {
         currentOrder: {
@@ -43,20 +45,7 @@ export default {
         currentOrder: {
             deep: true,
             handler(order) {
-                if(!order)
-                    return;
-                if(order.isPaid) {
-                    this.setState('COMPLETE');
-                    if(!order.isSaved)
-                        this.saveOrder();
-                }
-                if(order.resetState) {
-                    this.setState('DEFAULT');
-                    // clear out temporary properties from currentOrder
-                    this.$firebaseRefs.currentOrder.child('resetState').remove();
-                    this.$firebaseRefs.currentOrder.child('isSaved').remove();
-                    this.sendMessage({ 'action': 'closePaymentWindow' });
-                }
+                this.currentOrderUpdated(order);
             }
         }
     },
@@ -76,6 +65,7 @@ export default {
         },
         saveOrder() {
             const order = {...this.currentOrder};
+            delete order['.key'];
             order.datePaid = new Date().toISOString();
             order.isPaid = true;
             // save order to allOrders
@@ -84,6 +74,31 @@ export default {
             // update currentOrder
             this.$firebaseRefs.currentOrder.set(order);
         },
+        currentOrderUpdated(order) {
+            if(this.isObjectEmpty(order))
+                return;
+            if(order.isPaid) {
+                this.setState('COMPLETE');
+                if(!order.isSaved)
+                    this.saveOrder();
+            }
+            if(this.isObjectEmpty(order.items))
+                this.setState('DEFAULT');
+            if(order.resetState) {
+                this.setState('DEFAULT');
+                // clear out temporary properties from currentOrder
+                this.$firebaseRefs.currentOrder.child('resetState').remove();
+                this.$firebaseRefs.currentOrder.child('isSaved').remove();
+                this.sendMessage({ action: 'closePaymentWindow' });
+            }
+            this.sendMessage({ 
+                action: 'currentOrderChanged', 
+                data: { 
+                    order: order,
+                    total: this.total
+                }
+            });
+        },
         handleStateChange(state) {
             console.log('state changed: ',state);
             this.currentState = state;
@@ -91,7 +106,8 @@ export default {
                 case 'BEGIN':
                 break;
                 case 'COMPLETE':
-                    //this.orderCompleted();
+                    if(!this.currentOrder.isPaid)
+                        this.$firebaseRefs.currentOrder.child('isPaid').set(true);
                 break;
                 case 'CANCEL':
                     this.setState('BEGIN');
@@ -127,6 +143,7 @@ export default {
             });
         },
         sendMessage(data, cb) {
+            console.log('sent message',data)
             chrome.runtime.sendMessage(data, (response) => {
                 if(cb) cb();
             });

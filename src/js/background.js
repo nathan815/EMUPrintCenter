@@ -1,6 +1,5 @@
-import firebase from './firebase';
+import appConfig from './app-config';
 
-const BASE_URL = 'https://ebill.emich.edu/C20704_ustores/';
 let currentState = 'DEFAULT';
 let currentTotal = 0;
 let currentOrder = {};
@@ -14,9 +13,27 @@ function changeState(s) {
     });
 }
 
-function currentOrderChanged(order) {
+function deleteSiteSessionCookie() {
+    chrome.cookies.remove({
+        url: appConfig.BASE_URL,
+        name: 'JSESSIONID'
+    });
+}
+
+function closePaymentWindow() {
+    // query tabs for the emich ebill url
+    chrome.tabs.query({ url: appConfig.BASE_URL + '*' }, function(tabs) {
+        if(!tabs || !tabs[0]) return;
+        // send message to content script, and then delete the site's session cookie
+        chrome.tabs.sendMessage(tabs[0].id, { action: 'closePaymentWindow' }, function(response) {
+            deleteSiteSessionCookie();
+        });
+    });
+}
+
+function currentOrderChanged(order, total) {
     currentOrder = order;
-    currentTotal = calculateTotal(currentOrder.items);
+    currentTotal = total;
 }
 
 function handleMessage(msg) {
@@ -36,7 +53,7 @@ function handleMessage(msg) {
             returnData = { cost: cost };
         break;
         case 'currentOrderChanged':
-            currentOrderChanged(msg.data);
+            currentOrderChanged(msg.data, msg.total);
         break;
         case 'getCurrentOrder':
             returnData = { order: currentOrder, total: currentTotal };
@@ -49,7 +66,6 @@ function handleMessage(msg) {
         break;
         case 'paymentComplete':
             changeState('COMPLETE');
-            saveOrder();
         break;
         case 'cancelPayment':
             changeState('DEFAULT');
@@ -72,54 +88,6 @@ function sendMessage(data) {
         console.log('sent message',data);
     });
 }
-
-function calculateTotal(items) {
-    let total = 0;
-    if(!items)
-        return 0;
-    for(let key in items) {
-        total += items[key].cost * items[key].qty;
-    }
-    return Math.round(total * 100) / 100;
-}
-
-function deleteSiteSessionCookie() {
-    chrome.cookies.remove({
-        url: BASE_URL,
-        name: 'JSESSIONID'
-    });
-}
-
-function closePaymentWindow() {
-    // query tabs for the emich ebill url
-    chrome.tabs.query({ url: BASE_URL + '*' }, function(tabs) {
-        if(!tabs || !tabs[0]) return;
-        // send message to content script, and then delete the site's session cookie
-        chrome.tabs.sendMessage(tabs[0].id, { action: 'closePaymentWindow' }, function(response) {
-            deleteSiteSessionCookie();
-        });
-    });
-}
-
-// let currentOrderRef = firebase.database().ref('currentOrder');
-// currentOrderRef.on('value', function(snapshot) {
-    
-
-//     sendMessage({ 
-//         action: 'currentOrderChanged',
-//         order: order,
-//         total: currentTotal
-//     });
-// });
-
-firebase.database().ref('.info/connected').on('value', (connectedSnap) => {
-    if(connectedSnap.val() === true) {
-      console.log('firebase: connected')
-    } 
-    else {
-      console.log('firebase: not connected')
-    }
-});
 
 chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
     sendResponse(handleMessage(msg));
