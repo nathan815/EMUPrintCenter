@@ -1,4 +1,5 @@
 <script>
+import appConfig from '../app-config';
 import firebase from '../firebase';
 import ItemAdder from '../components/ItemAdder';
 import ItemTable from '../components/ItemTable';
@@ -37,7 +38,6 @@ export default {
             let orders = this.allOrders ? this.allOrders.slice() : [];
             return orders.map( (order) => {
                 order.formattedDate = this.parseDate(order.datePaid);
-                order.id = order['.key'].substring(3,10).toUpperCase();
                 if(order.isSplitPayment)
                     order.paymentMethod = 'Card + Inter. Transfer Form';
                 else if(order.isCard)
@@ -61,11 +61,16 @@ export default {
             alert(order['.key']);
         },
         printReceipt(order) {
-            alert(order['.key']);
+            let w = window.open(appConfig.PRINT_URL);
+            w.printData = {
+                currentOrder: order,
+                receiptHtml: document.getElementById('order-items-'+order.id).outerHTML
+            };
         },
         loadedOrders(snapshot) {
             // changing to reverse chronological order (latest first)
-            console.log(JSON.stringify(snapshot.val()));
+            if(!snapshot.val())
+                return;
             let arrayOfKeys = Object.keys(snapshot.val())
             .sort()
             .reverse();
@@ -136,7 +141,9 @@ export default {
                     <option value="paid">Paid</option>
                 </select>
             </h2>
-            <button class="btn pull-right" v-on:click="showAddOrderModal = true"><i class="fas fa-plus"></i> Add Email Order</button>
+            <button class="btn btn-light pull-right" v-on:click="showAddOrderModal = true">
+                <i class="fas fa-envelope"></i> New Email Order
+            </button>
         </header>
 
         <AddOrderModal :show="showAddOrderModal" v-on:close="showAddOrderModal = false" v-on:added="reloadOrders()"></AddOrderModal>
@@ -163,7 +170,7 @@ export default {
                 <p class="contact" v-if="order.contact"><i>Contact:</i> {{order.contact.name}} &bull; {{order.contact.email}}</p>
                 <p class="notes" v-if="order.notes"><i>Notes:</i> {{order.notes}}</p>
                 <div class="items">
-                   <ItemTable :items="order.items" :show-total-row="true" :show-placeholder="false"></ItemTable>
+                   <ItemTable :items="order.items" :id="'order-items-' + order.id" :show-total-row="true" :show-placeholder="false"></ItemTable>
                 </div>
             </div>
         </div>

@@ -40,14 +40,26 @@ function getCurrentState() {
             break;
             case 'CHECKOUT':
                 continueToCheckout();
-                eleId('pos-checkout-toolbar').classList.add('checkout');
+
+                if(document.title === 'Order Receipt') {
+                    chrome.runtime.sendMessage({ action: 'paymentComplete' });
+                    // if not on ebill print receipt page, open it up
+                    if(location.href !== EMU_PRINT_URL) {
+                        let w = window.open(EMU_PRINT_URL);
+                        w.onload = function() {
+                            w.print(); // print the receipt page
+                            w.close(); // close page
+                            window.close(); // close this current window also
+                        };
+                    }
+                }
+                else {
+                    eleId('pos-checkout-toolbar').classList.add('checkout');
+                }
             break;
             case 'CANCEL':
             break;
             case 'COMPLETE':
-                let w = window.open(EMU_PRINT_URL);
-                w.print();
-                w.close();
             break;
         }
     });
@@ -78,20 +90,22 @@ function loadHTML(file) {
         .then(response => response.text());
 }
 
-loadHTML('/inject-toolbar.html')
-    .then(data => {
-        let ele = document.createElement('div');
-        ele.innerHTML = data;
-        document.body.appendChild(ele);
-        getCurrentState();
-        toolbarButtonSetup();
-        showBackBtn();
-    }).catch(err => {
-        console.error(err);
-    });
+// don't inject the toolbar on the ebill print receipt page
+if(location.href !== EMU_PRINT_URL) {
+    loadHTML('/inject-toolbar.html')
+        .then(data => {
+            let ele = document.createElement('div');
+            ele.innerHTML = data;
+            document.body.appendChild(ele);
+            getCurrentState();
+            toolbarButtonSetup();
+            showBackBtn();
+        }).catch(err => {
+            console.error(err);
+        });
+}
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    console.log(request);
      switch(request.action) {
         case 'closePaymentWindow':
             window.close();

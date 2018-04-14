@@ -51,8 +51,7 @@ export default {
     },
     methods: {
         openPayWindow() {
-            this.sendMessage({ action: 'clearPaySiteSessionCookie' });
-            this.setState('BEGIN', function() {
+            this.sendMessage({ action: 'clearPaySiteSessionCookie', setState: 'BEGIN' }, function() {
                 let payWindow = window.open(appConfig.PAY_URL);
             });
         },
@@ -70,7 +69,8 @@ export default {
             order.isPaid = true;
             // save order to allOrders
             let pushRef = db.ref('allOrders').push();
-            order.id = pushRef.getKey().substring(3,12).replace('-', '').replace('_','');
+            // derive an order ID from the firebase push key
+            order.id = pushRef.getKey().substring(1,8).replace(/[\-_;]+/, '').toUpperCase();
             pushRef.set(order);
             delete order.id;
             order.isSaved = true;
@@ -147,9 +147,9 @@ export default {
             });
         },
         sendMessage(data, cb) {
-            console.log('sent message',data)
-            chrome.runtime.sendMessage(data, (response) => {
-                if(cb) cb();
+            console.log('sending message',data)
+            chrome.runtime.sendMessage(data, function(response) {
+                if(typeof cb === 'function') cb();
             });
         },
         firebaseLostConnectionHandler() {
@@ -198,7 +198,7 @@ export default {
                 </footer>
             </div>
             <div v-if="isOrderComplete">
-                <p>Click below if you want a copy of your receipt.</p>
+                <p>Click below if you want a copy of your itemized receipt.</p>
                 <button v-on:click="printReceipt" class="btn btn-lg"><i class="fas fa-print"></i> Print Receipt</button>
             </div>
             <button v-else v-on:click="openPayWindow" :disabled="currentOrder && !currentOrder.isCard" class="btn btn-lg">

@@ -31,9 +31,9 @@ function closePaymentWindow() {
     });
 }
 
-function currentOrderChanged(order, total) {
-    currentOrder = order;
-    currentTotal = total;
+function currentOrderChanged(data) {
+    currentOrder = data.order;
+    currentTotal = data.total;
 }
 
 function handleMessage(msg) {
@@ -53,13 +53,16 @@ function handleMessage(msg) {
             returnData = { cost: cost };
         break;
         case 'currentOrderChanged':
-            currentOrderChanged(msg.data, msg.total);
+            currentOrderChanged(msg.data);
         break;
         case 'getCurrentOrder':
             returnData = { order: currentOrder, total: currentTotal };
         break;
         case 'currentState':
             returnData = { state: currentState };
+        break;
+        case 'clearPaySiteSessionCookie':
+            deleteSiteSessionCookie();
         break;
         case 'closePaymentWindow':
             closePaymentWindow();

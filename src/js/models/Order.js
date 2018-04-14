@@ -4,7 +4,15 @@
  */
 
 export default {
+    id: null,
+    notes: null,
+    contact: {
+        name: null,
+        email: null
+    },
     items: {},
+    datePaid: '',
+    isPaid: false,
     isReadyToPay: false,
     isCard: false,
     isInterdepartmental: false,
@@ -12,12 +20,5 @@ export default {
     splitPayment: {
         cardAmount: 0,
         interdepartmentalAmount: 0
-    },
-    isPaid: false,
-    datePaid: '',
-    contact: {
-        name: null,
-        email: null
-    },
-    notes: ''
+    }
 };
