@@ -24,7 +24,7 @@ export default {
     },
     computed: {
         isOrderComplete() {
-            return this.currentState === 'COMPLETE';
+            return this.currentOrder.isPaid === true;
         },
         isSplitPayment() {
             return this.currentOrder.isSplitPayment
@@ -69,7 +69,10 @@ export default {
             order.datePaid = new Date().toISOString();
             order.isPaid = true;
             // save order to allOrders
-            let pushRef = db.ref('allOrders').push(order);
+            let pushRef = db.ref('allOrders').push();
+            order.id = pushRef.getKey().substring(3,12).replace('-', '').replace('_','');
+            pushRef.set(order);
+            delete order.id;
             order.isSaved = true;
             // update currentOrder
             this.$firebaseRefs.currentOrder.set(order);
@@ -87,6 +90,7 @@ export default {
             if(order.resetState) {
                 this.setState('DEFAULT');
                 // clear out temporary properties from currentOrder
+                this.$firebaseRefs.currentOrder.child('id').remove();
                 this.$firebaseRefs.currentOrder.child('resetState').remove();
                 this.$firebaseRefs.currentOrder.child('isSaved').remove();
                 this.sendMessage({ action: 'closePaymentWindow' });
@@ -182,9 +186,7 @@ export default {
                 <p v-else>Welcome to the Print Center!</p>
             </div>
             <div id="receipt">
-                <ItemTable :items="currentOrder.items" :show-placeholder="true"
-                            :editable="false">
-                </ItemTable>
+                <ItemTable :items="currentOrder.items" :show-placeholder="true" :editable="false"></ItemTable>
                 <footer>
                     <span v-if="currentOrder.items">Total: <b>${{ total.toFixed(2) }}</b></span>
                     <span v-else class="waiting-order">Waiting for order...</span>
