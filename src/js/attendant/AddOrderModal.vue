@@ -1,5 +1,6 @@
 <script>
 import firebase from '../firebase';
+import helpers from '../helpers';
 import OrderModel from '../models/Order';
 
 import Modal from '../components/Modal';
@@ -40,13 +41,15 @@ export default {
                 return;
             }
             const items = this.items;
-            const orderRef = firebase.database().ref('allOrders').push({
+            const orderRef = firebase.database().ref('allOrders').push();
+            orderRef.set({
                 ...OrderModel,
                 contact: {
                     name: this.name ? this.name : null,
                     email: this.email ? this.email : null
                 },
-                notes: this.notes ? this.notes : null
+                notes: this.notes ? this.notes : null,
+                id: helpers.deriveOrderId(orderRef.getKey())
             });
             // push all items to the new firebase object with Push IDs
             for(let key in items) {

@@ -14,7 +14,6 @@ export default {
             isConnected: false,
             isLoading: true,
             user: null,
-            reloadOrders: false,
         };
     },
     mounted() {
@@ -98,9 +97,9 @@ export default {
 
         <div v-if="isSignedIn">
             
-            <ManageCurrentOrder v-on:created="reloadOrders = true"></ManageCurrentOrder>
+            <ManageCurrentOrder></ManageCurrentOrder>
 
-            <ManageAllOrders :reload="reloadOrders" v-on:loaded="reloadOrders = false"></ManageAllOrders>
+            <ManageAllOrders></ManageAllOrders>
 
             <footer class="site-footer">
               Find an issue? Report it on the <a href="https://github.com/nathan815/EMUPrintCenter/issues" target="_blank">issue tracker</a>.

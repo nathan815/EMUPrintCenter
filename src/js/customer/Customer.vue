@@ -1,5 +1,6 @@
 <script>
 import appConfig from '../app-config';
+import helpers from '../helpers';
 import firebase from '../firebase';
 import ItemTable from '../components/ItemTable';
 
@@ -70,7 +71,7 @@ export default {
             // save order to allOrders
             let pushRef = db.ref('allOrders').push();
             // derive an order ID from the firebase push key
-            order.id = pushRef.getKey().substring(1,8).replace(/[\-_;]+/, '').toUpperCase();
+            order.id = helpers.deriveOrderId(pushRef.getKey());
             pushRef.set(order);
             delete order.id;
             order.isSaved = true;

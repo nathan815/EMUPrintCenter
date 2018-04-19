@@ -29,9 +29,24 @@ export default {
             },
         }
     },
+    // watch: {
+    //     currentOrder(order) {
+    //         if(order.id) {
+    //             ref('allOrders').key(order.id)
+    //         }
+    //     }
+    // },
     computed: {
         total() {
             return this.calculateTotal(this.currentOrder.items);
+        },
+        contactString() {
+            let contact = [];
+            if(this.currentOrder.contact.name)
+                contact.push(this.currentOrder.contact.name);
+            if(this.currentOrder.contact.email)
+                contact.push(`<a href="mailto:${this.currentOrder.contact.email}">${this.currentOrder.contact.email}</a>`);
+            return contact.join(' &bull; ');
         }
     },
     methods: {
@@ -89,6 +104,9 @@ export default {
         },
         clearScreen() {
             // reset currentOrder
+            if(this.currentOrder.id) {
+                //db.ref('allOrders').child(this.currentOrder.id).child('hide').remove();
+            }
             this.$firebaseRefs.currentOrder.set({
                 ...OrderModel,
                 resetState: true
@@ -110,14 +128,9 @@ export default {
         <header>
             <h2 class="pull-left">Current Order</h2>
             <div class="pull-right" v-if="currentOrder.items">
-                <div v-if="currentOrder.isPaid">
-                    <button class="btn btn-light" v-on:click="printReceipt()">
-                        <i class="fas fa-print"></i> Print Customer Receipt
-                    </button>
-                    <button class="btn btn-light" v-on:click="clearScreen()">
-                        <i class="fas fa-check-circle"></i> Clear Screen
-                    </button>
-                </div>
+                <button v-if="currentOrder.isPaid" class="btn btn-light" v-on:click="printReceipt()">
+                    <i class="fas fa-print"></i> Print Customer Receipt
+                </button>
                 <button v-else-if="!currentOrder.isReadyToPay" class="btn btn-light" v-on:click="readyToPay()">
                     <i class="fas fa-check"></i> Ready to Pay
                 </button>
@@ -125,23 +138,35 @@ export default {
                     <i class="fas fa-edit"></i> Edit Order
                 </button>
                 
-                <button v-if="!currentOrder.isPaid" class="btn btn-red" v-on:click="cancelOrder()">
+                <button v-if="!currentOrder.isPaid && !currentOrder.id" class="btn btn-red" v-on:click="cancelOrder()">
                     <i class="fas fa-times"></i> Cancel Order
+                </button>
+                <button v-if="currentOrder.id" class="btn btn-light" v-on:click="clearScreen()">
+                    <i class="fas fa-times-circle"></i> Clear Screen
                 </button>
             </div>
         </header>
 
-        <item-table :items="currentOrder.items" :show-total-row="true" :show-no-items-message="true"
+        <div v-if="currentOrder.id">Saved Order - <b>{{ currentOrder.id }}</b></div>
+
+        <div v-if="currentOrder.contact">
+            Contact: <span v-html="contactString"></span>
+        </div>
+        <div v-if="currentOrder.notes">
+            Notes: {{ currentOrder.contact.notes }}
+        </div>
+
+        <ItemTable :items="currentOrder.items" :show-total-row="true" :show-no-items-message="true"
                     :delete-item="deleteItem" :show-placeholder="false"
                     :editable="!currentOrder.isReadyToPay && !currentOrder.isPaid"
                     :update-item="updateItem" id="current-order-items">
-        </item-table>
+        </ItemTable>
 
-        <item-adder v-if="!currentOrder.isReadyToPay" :new-item="newItem" preset-text="Or, select a preset..."></item-adder>
+        <ItemAdder v-if="!currentOrder.isReadyToPay" :new-item="newItem" preset-text="Or, select a preset..."></ItemAdder>
         
-        <payment-method-selector v-on:selected="selectPaymentMethod" 
-                                 v-if="currentOrder.isReadyToPay && !currentOrder.isPaid">
-        </payment-method-selector>
+        <PaymentMethodSelector v-on:selected="selectPaymentMethod" 
+                               v-if="currentOrder.isReadyToPay && !currentOrder.isPaid">
+        </PaymentMethodSelector>
 
         <div v-if="currentOrder.isInterdepartmental && !currentOrder.isPaid" class="payment-box">
             <p class="mt-0">
@@ -152,10 +177,10 @@ export default {
         </div>
 
         <!-- Handles displaying split payment amounts, and the form to set those amounts -->
-        <split-payment-panel :total="total"
+        <SplitPaymentPanel :total="total"
                              :current-order="currentOrder" 
                              :update-current-order="updateCurrentOrder">      
-        </split-payment-panel>
+        </SplitPaymentPanel>
 
         <p v-if="currentOrder.isPaid">
             <i class="fas fa-check-circle"></i> 

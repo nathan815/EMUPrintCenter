@@ -16,26 +16,19 @@ export default {
         return {
             selectedFilter: 'all',
             showAddOrderModal: false,
+            moreOrdersToLoad: true,
+            loadingOrders: true,
             allOrders: [],
-            orderCount: 0,
-            previousLength: 0,
-            moreOrdersToLoad: true
+            orderKeys: [],
+            orderCount: ITEMS_TO_LOAD,
         };
-    },
-    props: ['reload'],
-    watch: {
-        reload(reload) {
-            if(reload === true) {
-                this.reloadOrders();
-            }
-        }
     },
     mounted() {
         this.loadOrders(false);
     },
     computed: {
         parsedOrders() {
-            let orders = this.allOrders ? this.allOrders.slice() : [];
+            let orders = JSON.parse(JSON.stringify(this.allOrders));
             return orders.map( (order) => {
                 order.formattedDate = this.parseDate(order.datePaid);
                 if(order.isSplitPayment)
@@ -57,9 +50,6 @@ export default {
                 return '';
             return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
         },
-        beginPayment(order) {
-            alert(order['.key']);
-        },
         printReceipt(order) {
             let w = window.open(appConfig.PRINT_URL);
             w.printData = {
@@ -67,42 +57,71 @@ export default {
                 receiptHtml: document.getElementById('order-items-'+order.id).outerHTML
             };
         },
+        beginPayment(index, id) {
+            let order = {...this.allOrders[index]};
+            let key = order['.key'];
+            delete order['.key'];
+            order.id = id;
+            db.ref('currentOrder').once('value').then((snapshot) => {
+                let currentOrder = snapshot.val();
+                if(currentOrder.id || this.isObjectEmpty(currentOrder.items)) {
+                    db.ref('currentOrder').set(order);
+                    db.ref('allOrders').child(key).child('hide').set(true);
+                    window.scrollTo(0, 0);
+                }
+                else {
+                    alert('Please complete or cancel the current order before loading a previous order.');
+                }
+            });
+        },
+        deleteOrder(order) {
+            if(!confirm('Are you sure you want to delete Order ' + order.id + '?'))
+                return;
+            db.ref('allOrders').child(order['.key']).remove();
+        },
         loadedOrders(snapshot) {
-            // changing to reverse chronological order (latest first)
+            this.loadingOrders = false;
             if(!snapshot.val())
                 return;
-            let arrayOfKeys = Object.keys(snapshot.val())
+            // changing to reverse chronological order (latest first)
+            console.log('loadedOrders',snapshot.val())
+            let keys = Object.keys(snapshot.val())
             .sort()
             .reverse();
 
             // transforming to array
-            let results = arrayOfKeys
-            .map((key) => {
+            let results = keys.map((key) => {
                 let order = snapshot.val()[key];
                 order['.key'] = key;
                 return order;
             });
 
-            console.log(results)
+            this.moreOrdersToLoad = this.orderKeys.length === 0;
+            for(let key in keys) {
+                if(!this.orderKeys.hasOwnProperty(key)) {
+                    this.moreOrdersToLoad = true;
+                }
+            }
 
-            if(this.previousLength === results.length)
-                this.moreOrdersToLoad = false;
-            else
-                this.allOrders = results;
+            this.allOrders = results;
+            console.log('updated orders',results)
 
-            this.previousLength = results.length;
+            this.orderKeys = keys;
             this.$emit('loaded');
         },
         loadOrders(more = true, reset = false) {
-            let query;
             let ref = db.ref('allOrders');
+            let query;
             ref.off();
+            this.loadingOrders = true;
             if(reset) {
                 this.moreOrdersToLoad = true;
-                this.previousLength = 0;
-                this.orderCount = 0;
+                this.orderKeys = [];
+                this.orderCount = ITEMS_TO_LOAD;
             }
-            this.orderCount += ITEMS_TO_LOAD;
+            if(more) {
+                this.orderCount += ITEMS_TO_LOAD;
+            }
             switch(this.selectedFilter) {
                 case 'all':
                     query = ref.orderByKey();
@@ -115,13 +134,10 @@ export default {
                 break;
             }
             query.limitToLast(this.orderCount)
-                 .once('value').then(this.loadedOrders);
+                 .on('value', this.loadedOrders);
         },
         loadMore() {
             this.loadOrders(true);
-        },
-        reloadOrders() {
-            this.loadOrders(false,false);
         },
         resetOrders() {
             this.loadOrders(false,true);
@@ -141,28 +157,28 @@ export default {
                     <option value="paid">Paid</option>
                 </select>
             </h2>
-            <button class="btn btn-light pull-right" v-on:click="showAddOrderModal = true">
-                <i class="fas fa-envelope"></i> New Email Order
+            <button class="btn pull-right" v-on:click="showAddOrderModal = true">
+                <i class="fas fa-envelope"></i> Add Email Order
             </button>
         </header>
 
-        <AddOrderModal :show="showAddOrderModal" v-on:close="showAddOrderModal = false" v-on:added="reloadOrders()"></AddOrderModal>
+        <AddOrderModal :show="showAddOrderModal" v-on:close="showAddOrderModal = false"></AddOrderModal>
         
-        <div class="order" v-for="order in parsedOrders">
+        <div class="order" v-for="(order,index) in parsedOrders">
             <header>
                 <h3>
                     Order: {{ order.id }} &nbsp; 
                     <a href="#" class="print" v-if="order.isPaid" v-on:click.prevent="printReceipt(order)">
                         <i class="fas fa-print"></i> Print
                     </a>
-                    <a href="#" class="print" v-else v-on:click.prevent="printReceipt(order)">
+                    <a href="#" class="print" v-else v-on:click.prevent="deleteOrder(order)">
                         <i class="fas fa-trash"></i> Delete
                     </a>
                 </h3>
                 <div class="header-details">
                     <span class="paid" :class="{'not':!order.isPaid}">{{ order.paidText }}</span> 
                     <br>
-                    <a href="#" v-if="!order.isPaid" v-on:click.prevent="beginPayment(order)"><i class="fas fa-arrow-up"></i> Move to Customer Screen</a>
+                    <a href="#" v-if="!order.isPaid" v-on:click.prevent="beginPayment(index, order.id)"><i class="fas fa-arrow-up"></i> Move to Customer Screen</a>
                     <span v-else>on {{ order.formattedDate }}</span>
                 </div>
             </header>
@@ -170,12 +186,12 @@ export default {
                 <p class="contact" v-if="order.contact"><i>Contact:</i> {{order.contact.name}} &bull; {{order.contact.email}}</p>
                 <p class="notes" v-if="order.notes"><i>Notes:</i> {{order.notes}}</p>
                 <div class="items">
-                   <ItemTable :items="order.items" :id="'order-items-' + order.id" :show-total-row="true" :show-placeholder="false"></ItemTable>
+                   <ItemTable :items="order.items" :id="'order-items-' + order.id" :showTotalRow="true" :showPlaceholder="false"></ItemTable>
                 </div>
             </div>
         </div>
-        <button class="btn btn-light" :disabled="!moreOrdersToLoad" v-on:click="loadMore()" >
-            {{ moreOrdersToLoad ? 'Load more...' : 'No more orders to load' }}
+        <button class="btn btn-light" :disabled="!moreOrdersToLoad || loadingOrders" v-on:click="loadMore()" >
+            {{ loadingOrders ? 'Loading...' : (moreOrdersToLoad ? 'Load more...' : 'No more orders to load') }}
         </button>
 
     </section><!-- end section.orders-->
